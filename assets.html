@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - الأصول</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 90px;background:linear-gradient(rgba(255,255,255,.92),rgba(255,255,255,.92)), url('a_pair_of_digital_promotional_images_for_x.swt_are.png') center/cover no-repeat;background-attachment:fixed}
+    .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .title{font-size:24px;font-weight:bold}
+    .card{background:rgba(255,255,255,.95);border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .big{font-size:32px;font-weight:bold;margin:8px 0}
+    .muted{color:#666;font-size:13px}
+    .action-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{border:none;border-radius:18px;padding:16px;font-size:16px;font-weight:bold;cursor:pointer;background:linear-gradient(135deg,#ffffff,#eef2f5);box-shadow:0 8px 20px rgba(0,0,0,.06)}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+    .row:last-child{border-bottom:none}
+    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px, calc(100% - 20px));background:rgba(255,255,255,.94);border:1px solid #e8e8e8;border-radius:24px;display:flex;justify-content:space-around;padding:12px 8px;box-shadow:0 16px 35px rgba(0,0,0,.12)}
+    .nav-item{text-align:center;font-size:12px;color:#666;text-decoration:none;flex:1}
+    .nav-item.active{color:#111;font-weight:bold}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="title">الأصول</div>
+      <button class="btn" onclick="location.href='index.html'">رجوع</button>
+    </div>
+
+    <div class="card">
+      <div class="muted">إجمالي الأصول</div>
+      <div class="big" id="totalBalance">0 نقطة</div>
+      <div class="muted">1 نقطة = 1 دولار</div>
+    </div>
+
+    <div class="action-grid">
+      <button class="btn" onclick="alert('صفحة الإيداع القادمة')">الإيداع</button>
+      <button class="btn" onclick="alert('صفحة السحب القادمة')">سحب العملات</button>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="row"><span>رأس المال</span><strong id="principalText">0</strong></div>
+      <div class="row"><span>الأرباح</span><strong id="earnedText">0</strong></div>
+      <div class="row"><span>أرباح الدعوات</span><strong id="referralText">0</strong></div>
+      <div class="row"><span>أرباح الفريق</span><strong id="teamText">0</strong></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">الرئيسية</a>
+    <a href="market.html" class="nav-item">السوق</a>
+    <a href="sync.html" class="nav-item">الكود</a>
+    <a href="assets.html" class="nav-item active">الأصول</a>
+    <a href="profile.html" class="nav-item">حسابي</a>
+  </div>
+
+  <script>
+    async function loadAssets(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const wallet = await getMyWallet();
+      if(!wallet) return;
+
+      document.getElementById('totalBalance').textContent = money(wallet.balance_points) + ' نقطة';
+      document.getElementById('principalText').textContent = money(wallet.principal_points);
+      document.getElementById('earnedText').textContent = money(wallet.earned_points);
+      document.getElementById('referralText').textContent = money(wallet.referral_points);
+      document.getElementById('teamText').textContent = money(wallet.team_profit_points);
+    }
+    loadAssets();
+  </script>
+</body>
+</html>
