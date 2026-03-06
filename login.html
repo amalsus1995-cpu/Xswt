@@ -4,28 +4,163 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>x.swt - تسجيل الدخول</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="supabase.js"></script>
+
   <style>
     *{box-sizing:border-box}
-    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f6f7f9,#e8ecf2);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#222}
-    .wrap{width:100%;max-width:430px;padding:16px}
-    .card{background:rgba(255,255,255,.95);border:1px solid #e5e7eb;border-radius:26px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:0 0 6px;text-align:center}
-    .sub{text-align:center;color:#666;font-size:14px;margin-bottom:20px}
-    .logo{text-align:center;margin-bottom:12px}
-    .logo img{width:88px;height:88px;object-fit:contain;border-radius:18px}
-    .field{margin-bottom:14px}
-    label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
-    input{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;outline:none;background:#fff}
-    input:focus{border-color:#9aa4b2}
-    .btn{width:100%;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07)}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .msg{margin-top:12px;padding:12px;border-radius:12px;font-size:14px;display:none}
-    .msg.ok{display:block;background:#eaf8ef;color:#166534}
-    .msg.err{display:block;background:#fdecec;color:#b42318}
-    .link{text-align:center;margin-top:16px;font-size:14px}
-    .link a{color:#0b65d8;text-decoration:none;font-weight:bold}
+
+    body{
+      margin:0;
+      font-family:Tahoma,Arial,sans-serif;
+      background:linear-gradient(180deg,#f6f7f9,#e8ecf2);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#222;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:430px;
+      padding:16px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.96);
+      border:1px solid #e5e7eb;
+      border-radius:26px;
+      padding:22px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+
+    h1{
+      margin:0 0 6px;
+      text-align:center;
+      font-size:26px;
+    }
+
+    .sub{
+      text-align:center;
+      color:#666;
+      font-size:14px;
+      margin-bottom:20px;
+    }
+
+    .logo{
+      text-align:center;
+      margin-bottom:12px;
+    }
+
+    .logo img{
+      width:88px;
+      height:88px;
+      object-fit:contain;
+      border-radius:18px;
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    label{
+      display:block;
+      font-weight:bold;
+      font-size:14px;
+      margin-bottom:7px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #d4d7dd;
+      border-radius:14px;
+      font-size:15px;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus{
+      border-color:#9aa4b2;
+    }
+
+    .password-wrap{
+      position:relative;
+    }
+
+    .toggle-pass{
+      position:absolute;
+      left:10px;
+      top:50%;
+      transform:translateY(-50%);
+      border:none;
+      background:none;
+      cursor:pointer;
+      font-size:13px;
+      color:#666;
+      padding:4px 6px;
+    }
+
+    .btn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#dfe3e8,#ffffff);
+      font-weight:bold;
+      font-size:16px;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(0,0,0,.07);
+    }
+
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+    .msg{
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      font-size:14px;
+      display:none;
+      line-height:1.7;
+    }
+
+    .msg.ok{
+      display:block;
+      background:#eaf8ef;
+      color:#166534;
+    }
+
+    .msg.err{
+      display:block;
+      background:#fdecec;
+      color:#b42318;
+    }
+
+    .links{
+      margin-top:16px;
+      text-align:center;
+      font-size:14px;
+      line-height:2;
+    }
+
+    .links a{
+      color:#0b65d8;
+      text-decoration:none;
+      font-weight:bold;
+    }
+
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:#777;
+      line-height:1.7;
+      text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -39,19 +174,28 @@
 
       <div class="field">
         <label>البريد الإلكتروني</label>
-        <input id="email" type="email" placeholder="example@email.com">
+        <input id="email" type="email" placeholder="example@email.com" autocomplete="email">
       </div>
 
       <div class="field">
         <label>كلمة المرور</label>
-        <input id="password" type="password" placeholder="********">
+        <div class="password-wrap">
+          <input id="password" type="password" placeholder="********" autocomplete="current-password">
+          <button type="button" class="toggle-pass" onclick="togglePassword()">إظهار</button>
+        </div>
       </div>
 
       <button id="loginBtn" class="btn" onclick="loginUser()">دخول</button>
+
       <div id="message" class="msg"></div>
 
-      <div class="link">
-        ليس لديك حساب؟ <a href="register.html">إنشاء حساب</a>
+      <div class="note">
+        إذا كان الحساب جديداً، تأكد من تفعيل البريد الإلكتروني أولاً
+      </div>
+
+      <div class="links">
+        ليس لديك حساب؟ <a href="register.html">إنشاء حساب</a><br>
+        <a href="#" onclick="resetPassword()">نسيت كلمة المرور؟</a>
       </div>
     </div>
   </div>
@@ -63,18 +207,30 @@
       box.textContent = text;
     }
 
+    function togglePassword(){
+      const input = document.getElementById("password");
+      const btn = document.querySelector(".toggle-pass");
+      if(input.type === "password"){
+        input.type = "text";
+        btn.textContent = "إخفاء";
+      }else{
+        input.type = "password";
+        btn.textContent = "إظهار";
+      }
+    }
+
     async function loginUser() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
       const btn = document.getElementById("loginBtn");
 
       if (!email || !password) {
-        showMessage("يرجى إدخال البريد وكلمة المرور", "err");
+        showMessage("يرجى إدخال البريد الإلكتروني وكلمة المرور", "err");
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = "جاري الدخول...";
+      btn.textContent = "جاري تسجيل الدخول...";
 
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
@@ -90,17 +246,53 @@
 
       const user = data.user;
 
-      const { data: profile } = await supabaseClient
+      const { data: profile, error: profileError } = await supabaseClient
         .from("profiles")
-        .select("role")
+        .select("*")
         .eq("id", user.id)
         .single();
 
-      if (profile?.role === "admin") {
-        window.location.href = "admin.html";
-      } else {
-        window.location.href = "index.html";
+      if (profileError || !profile) {
+        showMessage("تم الدخول لكن لم يتم العثور على بيانات الحساب", "err");
+        btn.disabled = false;
+        btn.textContent = "دخول";
+        return;
       }
+
+      if (profile.account_status === "banned") {
+        showMessage("هذا الحساب محظور، يرجى التواصل مع الإدارة", "err");
+        await supabaseClient.auth.signOut();
+        btn.disabled = false;
+        btn.textContent = "دخول";
+        return;
+      }
+
+      if (profile.role === "admin") {
+        window.location.href = "admin.html";
+        return;
+      }
+
+      window.location.href = "index.html";
+    }
+
+    async function resetPassword(){
+      const email = document.getElementById("email").value.trim();
+
+      if(!email){
+        showMessage("اكتب البريد الإلكتروني أولاً ثم اضغط نسيت كلمة المرور", "err");
+        return;
+      }
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + "/change-password.html"
+      });
+
+      if(error){
+        showMessage(error.message, "err");
+        return;
+      }
+
+      showMessage("تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني", "ok");
     }
   </script>
 </body>
