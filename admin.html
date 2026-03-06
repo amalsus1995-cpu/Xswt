@@ -303,6 +303,7 @@
         <div class="item">الإيميل: ${profile.email || ""}</div>
         <div class="item">الحالة: ${profile.account_status || "active"}</div>
         <div class="item">تفعيل الحساب: ${profile.activation_status || "inactive"}</div>
+        <div class="item">VIP: ${profile.vip_status || "normal"}</div>
         <div class="item">KYC: ${profile.kyc_status || "not_submitted"}</div>
         <div class="item">عدد الدعوات: ${profile.referral_count || 0}</div>
         <div class="item">الرصيد: ${wallet?.balance_points || 0} نقطة</div>
@@ -379,7 +380,6 @@
 
       alert(action === "add" ? "تمت إضافة النقاط بنجاح" : "تم خصم النقاط بنجاح");
       loadStats();
-      findUser();
     }
 
     async function changeStatus(){
@@ -465,14 +465,12 @@
       }
 
       const depositPoints = Number(points || 0);
-      const newBalance = Number(wallet.balance_points || 0) + depositPoints;
-      const newPrincipal = Number(wallet.principal_points || 0) + depositPoints;
 
       const { error: walletError } = await supabaseClient
         .from("wallets")
         .update({
-          balance_points: newBalance,
-          principal_points: newPrincipal
+          balance_points: Number(wallet.balance_points || 0) + depositPoints,
+          principal_points: Number(wallet.principal_points || 0) + depositPoints
         })
         .eq("user_id", userId);
 
@@ -494,12 +492,15 @@
       if(depositPoints >= 500){
         await supabaseClient
           .from("profiles")
-          .update({ activation_status: "active" })
+          .update({
+            activation_status: "active",
+            vip_status: "vip"
+          })
           .eq("id", userId);
       }
 
       try {
-        await supabaseClient.rpc("apply_referral_rewards", {
+        await supabaseClient.rpc("apply_referral_bonus_10", {
           p_deposit_id: depositId
         });
       } catch (e) {}
