@@ -33,6 +33,7 @@ background-attachment:fixed;
 display:flex;
 align-items:center;
 justify-content:space-between;
+gap:10px;
 margin-bottom:14px;
 }
 
@@ -49,6 +50,18 @@ border-radius:16px;
 object-fit:cover;
 background:#fff;
 box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
+
+.brand h1{
+margin:0;
+font-size:22px;
+line-height:1.2;
+}
+
+.brand p{
+margin:3px 0 0;
+color:#666;
+font-size:13px;
 }
 
 .icon-btn{
@@ -69,12 +82,52 @@ border-radius:22px;
 padding:16px;
 box-shadow:0 12px 30px rgba(0,0,0,.08);
 margin-bottom:14px;
+backdrop-filter:blur(8px);
+}
+
+.hero{
+background:linear-gradient(135deg,#ffffff,#eef2f7);
+}
+
+.muted{
+color:#666;
+font-size:13px;
 }
 
 .balance{
 font-size:34px;
 font-weight:bold;
 margin:10px 0 6px;
+}
+
+.status-row{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+flex-wrap:wrap;
+margin-top:8px;
+}
+
+.pill{
+display:inline-block;
+padding:7px 12px;
+border-radius:999px;
+font-size:12px;
+background:#f8fafc;
+border:1px solid #e5e7eb;
+}
+
+.pill.ok{
+color:#166534;
+background:#ecfdf5;
+border-color:#bbf7d0;
+}
+
+.pill.warn{
+color:#92400e;
+background:#fff7ed;
+border-color:#fed7aa;
 }
 
 .grid{
@@ -89,10 +142,32 @@ background:#fff;
 border-radius:18px;
 padding:14px;
 box-shadow:0 8px 20px rgba(0,0,0,.06);
+border:1px solid #f0f0f0;
+}
+
+.mini h3{
+margin:0 0 8px;
+font-size:14px;
+color:#666;
+font-weight:bold;
+}
+
+.mini .num{
+font-size:24px;
+font-weight:bold;
+line-height:1.2;
 }
 
 .section-title{
+display:flex;
+align-items:center;
+justify-content:space-between;
 margin:10px 2px 12px;
+}
+
+.section-title h2{
+margin:0;
+font-size:18px;
 }
 
 .action-grid{
@@ -110,11 +185,55 @@ font-weight:bold;
 cursor:pointer;
 background:linear-gradient(135deg,#ffffff,#eef2f5);
 box-shadow:0 8px 20px rgba(0,0,0,.06);
+border:1px solid #f0f0f0;
 }
 
-.admin-btn{
-background:#111;
-color:#fff;
+.coins{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+.coin{
+background:rgba(255,255,255,.96);
+border-radius:18px;
+padding:14px;
+box-shadow:0 8px 20px rgba(0,0,0,.06);
+border:1px solid #f0f0f0;
+}
+
+.coin .pair{
+font-weight:bold;
+margin-bottom:10px;
+font-size:14px;
+}
+
+.coin .price{
+font-size:22px;
+font-weight:bold;
+line-height:1.2;
+}
+
+.coin .change{
+margin-top:6px;
+font-size:13px;
+font-weight:bold;
+}
+
+.coin .change.up{color:#169c46}
+.coin .change.down{color:#c0392b}
+
+.feed-item{
+padding:12px 0;
+border-bottom:1px solid #efefef;
+font-size:14px;
+color:#333;
+line-height:1.7;
+}
+
+.feed-item:last-child{
+border-bottom:none;
+padding-bottom:0;
 }
 
 .bottom-nav{
@@ -124,11 +243,14 @@ transform:translateX(-50%);
 bottom:10px;
 width:min(430px, calc(100% - 20px));
 background:rgba(255,255,255,.96);
+border:1px solid #e8e8e8;
 border-radius:24px;
 display:flex;
 justify-content:space-around;
 padding:12px 8px;
 box-shadow:0 16px 35px rgba(0,0,0,.12);
+backdrop-filter:blur(10px);
+z-index:50;
 }
 
 .nav-item{
@@ -143,6 +265,12 @@ flex:1;
 color:#111;
 font-weight:bold;
 }
+
+.welcome{
+margin-top:8px;
+font-size:14px;
+color:#444;
+}
 </style>
 </head>
 
@@ -152,19 +280,47 @@ font-weight:bold;
 
 <div class="top">
 <div class="brand">
-<img src="logo.png">
+<img src="a_logo_for_x.swt_is_displayed_in_the_digital_ima.png">
 <div>
 <h1>x.swt</h1>
 <p>تداول مع منصتنا لتكسب</p>
 </div>
 </div>
-
 <button class="icon-btn" onclick="logoutUser()">خروج</button>
 </div>
 
-<div class="card">
+<div class="card hero">
+<div class="muted">إجمالي النقاط</div>
 <div class="balance" id="balanceText">0 نقطة</div>
-<div id="uidText">UID: ----</div>
+
+<div class="status-row">
+<div class="muted" id="uidText">UID: ----</div>
+<div id="activeText" class="pill warn">الحساب: غير مفعل</div>
+</div>
+
+<div class="welcome" id="welcomeText">مرحباً بك</div>
+
+<div class="grid">
+<div class="mini">
+<h3>أرباحي</h3>
+<div class="num" id="earnedText">0</div>
+</div>
+
+<div class="mini">
+<h3>أرباح الفريق</h3>
+<div class="num" id="teamText">0</div>
+</div>
+
+<div class="mini">
+<h3>أرباح الدعوات</h3>
+<div class="num" id="referralText">0</div>
+</div>
+
+<div class="mini">
+<h3>عدد الدعوات</h3>
+<div class="num" id="refCountText">0</div>
+</div>
+</div>
 </div>
 
 <div class="section-title">
@@ -172,20 +328,50 @@ font-weight:bold;
 </div>
 
 <div class="action-grid">
-
 <button class="action-btn" onclick="location.href='assets.html'">الأصول</button>
 <button class="action-btn" onclick="location.href='profile.html'">ملفي الشخصي</button>
 <button class="action-btn" onclick="location.href='market.html'">أسعار السوق</button>
 <button class="action-btn" onclick="location.href='sync.html'">إدخال الكود</button>
-<button class="action-btn" onclick="location.href='team.html'">الفريق</button>
+<button class="action-btn" onclick="location.href='team.html'">الفريق والدعوات</button>
 <button class="action-btn" onclick="location.href='support.html'">الدعم</button>
+</div>
 
-<!-- زر الادمن -->
-<button class="action-btn admin-btn" id="adminBtn" style="display:none"
-onclick="location.href='admin.html'">
-لوحة الأدمن
-</button>
+<div class="section-title" style="margin-top:18px;">
+<h2>العملات الرئيسية</h2>
+</div>
 
+<div class="coins">
+<div class="coin">
+<div class="pair">BTC / USDT</div>
+<div class="price">$70,955</div>
+<div class="change down">-0.96%</div>
+</div>
+
+<div class="coin">
+<div class="pair">ETH / USDT</div>
+<div class="price">$2,075</div>
+<div class="change down">-0.56%</div>
+</div>
+
+<div class="coin">
+<div class="pair">TRX / USDT</div>
+<div class="price">$0.13</div>
+<div class="change up">+1.14%</div>
+</div>
+
+<div class="coin">
+<div class="pair">BNB / USDT</div>
+<div class="price">$647</div>
+<div class="change down">-0.77%</div>
+</div>
+</div>
+
+<div class="section-title" style="margin-top:18px;">
+<h2>الإشعارات</h2>
+</div>
+
+<div class="card" id="feedBox">
+<div class="feed-item">جاري تحميل الإشعارات...</div>
 </div>
 
 </div>
@@ -201,7 +387,6 @@ onclick="location.href='admin.html'">
 <script>
 
 async function loadHome(){
-
 const user = await ensureLoggedIn();
 if(!user) return;
 
@@ -209,21 +394,48 @@ const profile = await getMyProfile();
 const wallet = await getMyWallet();
 
 if(profile){
+document.getElementById("uidText").textContent="UID: "+(profile.uid||"----");
+document.getElementById("refCountText").textContent=money(profile.referral_count||0);
+document.getElementById("welcomeText").textContent="مرحباً "+(profile.full_name||"بك");
 
-document.getElementById("uidText").textContent =
-"UID: " + (profile.uid || "----");
+const activeBox=document.getElementById("activeText");
 
-if(profile.email === "am.alsus1995@gmail.com"){
-document.getElementById("adminBtn").style.display="block";
+if(profile.activation_status==="active"){
+activeBox.textContent="الحساب: مفعل";
+activeBox.className="pill ok";
+}else{
+activeBox.textContent="الحساب: غير مفعل";
+activeBox.className="pill warn";
 }
-
 }
 
 if(wallet){
-document.getElementById("balanceText").textContent =
-money(wallet.balance_points) + " دولار";
+document.getElementById("balanceText").textContent=money(wallet.balance_points)+" نقطة";
+document.getElementById("earnedText").textContent=money(wallet.earned_points);
+document.getElementById("teamText").textContent=money(wallet.team_profit_points);
+document.getElementById("referralText").textContent=money(wallet.referral_points);
 }
 
+const {data:feed}=await supabaseClient
+.from("activity_feed")
+.select("*")
+.order("created_at",{ascending:false})
+.limit(8);
+
+const box=document.getElementById("feedBox");
+
+if(!feed||!feed.length){
+box.innerHTML='<div class="feed-item">لا توجد إشعارات حالياً</div>';
+return;
+}
+
+box.innerHTML="";
+feed.forEach(item=>{
+const div=document.createElement("div");
+div.className="feed-item";
+div.textContent=item.display_text||"إشعار جديد";
+box.appendChild(div);
+});
 }
 
 loadHome();
