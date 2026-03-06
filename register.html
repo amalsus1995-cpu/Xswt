@@ -4,28 +4,145 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>x.swt - إنشاء حساب</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script defer src="supabase.js"></script>
+
   <style>
     *{box-sizing:border-box}
-    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f6f7f9,#e8ecf2);min-height:100vh;display:flex;align-items:center;justify-content:center;color:#222}
-    .wrap{width:100%;max-width:430px;padding:16px}
-    .card{background:rgba(255,255,255,.95);border:1px solid #e5e7eb;border-radius:26px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:0 0 6px;text-align:center}
-    .sub{text-align:center;color:#666;font-size:14px;margin-bottom:20px}
-    .logo{text-align:center;margin-bottom:12px}
-    .logo img{width:88px;height:88px;object-fit:contain;border-radius:18px}
-    .field{margin-bottom:14px}
-    label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
-    input{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;outline:none;background:#fff}
-    input:focus{border-color:#9aa4b2}
-    .btn{width:100%;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07)}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    .msg{margin-top:12px;padding:12px;border-radius:12px;font-size:14px;display:none}
-    .msg.ok{display:block;background:#eaf8ef;color:#166534}
-    .msg.err{display:block;background:#fdecec;color:#b42318}
-    .link{text-align:center;margin-top:16px;font-size:14px}
-    .link a{color:#0b65d8;text-decoration:none;font-weight:bold}
+
+    body{
+      margin:0;
+      font-family:Tahoma,Arial,sans-serif;
+      background:linear-gradient(180deg,#f6f7f9,#e8ecf2);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#222;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:430px;
+      padding:16px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.96);
+      border:1px solid #e5e7eb;
+      border-radius:26px;
+      padding:22px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+
+    h1{
+      margin:0 0 6px;
+      text-align:center;
+      font-size:26px;
+    }
+
+    .sub{
+      text-align:center;
+      color:#666;
+      font-size:14px;
+      margin-bottom:20px;
+    }
+
+    .logo{
+      text-align:center;
+      margin-bottom:12px;
+    }
+
+    .logo img{
+      width:88px;
+      height:88px;
+      object-fit:contain;
+      border-radius:18px;
+    }
+
+    .field{
+      margin-bottom:14px;
+    }
+
+    label{
+      display:block;
+      font-weight:bold;
+      font-size:14px;
+      margin-bottom:7px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #d4d7dd;
+      border-radius:14px;
+      font-size:15px;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus{
+      border-color:#9aa4b2;
+    }
+
+    .btn{
+      width:100%;
+      padding:15px;
+      border:none;
+      border-radius:16px;
+      background:linear-gradient(135deg,#dfe3e8,#ffffff);
+      font-weight:bold;
+      font-size:16px;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(0,0,0,.07);
+    }
+
+    .btn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+
+    .msg{
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      font-size:14px;
+      display:none;
+      line-height:1.7;
+    }
+
+    .msg.ok{
+      display:block;
+      background:#eaf8ef;
+      color:#166534;
+    }
+
+    .msg.err{
+      display:block;
+      background:#fdecec;
+      color:#b42318;
+    }
+
+    .link{
+      text-align:center;
+      margin-top:16px;
+      font-size:14px;
+    }
+
+    .link a{
+      color:#0b65d8;
+      text-decoration:none;
+      font-weight:bold;
+    }
+
+    .note{
+      margin-top:10px;
+      font-size:12px;
+      color:#777;
+      line-height:1.7;
+      text-align:center;
+    }
   </style>
 </head>
 <body>
@@ -58,7 +175,12 @@
       </div>
 
       <button id="regBtn" class="btn" onclick="registerUser()">إنشاء الحساب</button>
+
       <div id="message" class="msg"></div>
+
+      <div class="note">
+        سيتم إرسال رسالة تأكيد إلى بريدك الإلكتروني بعد إنشاء الحساب
+      </div>
 
       <div class="link">
         لديك حساب؟ <a href="login.html">تسجيل الدخول</a>
@@ -73,6 +195,14 @@
       box.textContent = text;
     }
 
+    function getReferralFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+      if (ref) {
+        document.getElementById("referral_code").value = ref.toUpperCase();
+      }
+    }
+
     async function registerUser() {
       const full_name = document.getElementById("full_name").value.trim();
       const email = document.getElementById("email").value.trim();
@@ -85,14 +215,21 @@
         return;
       }
 
+      if (password.length < 6) {
+        showMessage("كلمة المرور يجب أن تكون 6 أحرف على الأقل", "err");
+        return;
+      }
+
       btn.disabled = true;
-      btn.textContent = "جاري الإنشاء...";
+      btn.textContent = "جاري إنشاء الحساب...";
 
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
-          data: { full_name }
+          data: {
+            full_name: full_name
+          }
         }
       });
 
@@ -106,28 +243,35 @@
       const user = data.user;
 
       if (user && referral_code) {
-        const { data: refProfile } = await supabaseClient
-          .from("profiles")
-          .select("id")
-          .eq("referral_code", referral_code)
-          .single();
+        try {
+          const { data: refProfile, error: refError } = await supabaseClient
+            .from("profiles")
+            .select("id")
+            .eq("referral_code", referral_code)
+            .single();
 
-        if (refProfile?.id) {
-          await supabaseClient.from("referrals").insert({
-            referrer_id: refProfile.id,
-            referred_id: user.id
-          });
+          if (!refError && refProfile?.id) {
+            await supabaseClient.from("referrals").insert({
+              referrer_id: refProfile.id,
+              referred_id: user.id
+            });
+          }
+        } catch (e) {
+          console.log("Referral warning:", e.message);
         }
       }
 
-      showMessage("تم إنشاء الحساب. تحقق من بريدك الإلكتروني ثم سجّل الدخول.", "ok");
+      showMessage("تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني ثم سجّل الدخول.", "ok");
+
       btn.disabled = false;
       btn.textContent = "إنشاء الحساب";
 
       setTimeout(() => {
         window.location.href = "login.html";
-      }, 1800);
+      }, 2200);
     }
+
+    getReferralFromUrl();
   </script>
 </body>
 </html>
