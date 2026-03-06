@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - إنشاء حساب</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, Arial, sans-serif;
+      background:
+        linear-gradient(rgba(255,255,255,0.86), rgba(255,255,255,0.86)),
+        url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200&auto=format&fit=crop') center/cover no-repeat;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #222;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 390px;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.92);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+      border: 1px solid #e8e8e8;
+      backdrop-filter: blur(8px);
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .logo img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      border-radius: 20px;
+      display: block;
+      margin: 0 auto 8px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      text-align: center;
+    }
+
+    .sub {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #d8d8d8;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #7d8fa3;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 15px;
+      background: linear-gradient(135deg, #dfe4ea, #ffffff);
+      color: #222;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      margin-top: 4px;
+    }
+
+    .btn:hover {
+      opacity: 0.96;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #0b65d8;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .msg {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .msg.ok {
+      background: #e9f9ee;
+      color: #157347;
+      display: block;
+    }
+
+    .msg.err {
+      background: #fdecec;
+      color: #b42318;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="logo">
+        <img src="a_logo_for_x.swt_is_displayed_in_the_digital_ima.png" alt="x.swt logo">
+        <h1>x.swt</h1>
+        <div class="sub">إنشاء حساب جديد</div>
+      </div>
+
+      <div class="field">
+        <label>الاسم الكامل</label>
+        <input type="text" id="full_name" placeholder="اكتب اسمك الكامل">
+      </div>
+
+      <div class="field">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="email" placeholder="example@email.com">
+      </div>
+
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" placeholder="********">
+      </div>
+
+      <div class="field">
+        <label>كود الدعوة (اختياري)</label>
+        <input type="text" id="referral_code" placeholder="كود الدعوة">
+      </div>
+
+      <button class="btn" onclick="registerUser()">إنشاء الحساب</button>
+
+      <div id="message" class="msg"></div>
+
+      <div class="link">
+        لديك حساب؟ <a href="login.html">تسجيل الدخول</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "ضع_رابط_مشروعك_من_سبابيس_هنا";
+    const SUPABASE_ANON_KEY = "ضع_مفتاح_ANON_هنا";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function showMessage(text, type) {
+      const box = document.getElementById("message");
+      box.className = "msg " + type;
+      box.textContent = text;
+    }
+
+    async function registerUser() {
+      const full_name = document.getElementById("full_name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const referral_code = document.getElementById("referral_code").value.trim().toUpperCase();
+
+      if (!full_name || !email || !password) {
+        showMessage("يرجى تعبئة جميع الحقول المطلوبة", "err");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name
+          }
+        }
+      });
+
+      if (error) {
+        showMessage(error.message, "err");
+        return;
+      }
+
+      const user = data.user;
+
+      if (user && referral_code) {
+        await supabaseClient.rpc("set_referred_by", {
+          p_user_id: user.id,
+          p_referral_code: referral_code
+        });
+      }
+
+      showMessage("تم إنشاء الحساب. تحقق من بريدك الإلكتروني لتفعيل الحساب.", "ok");
+
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 2200);
+    }
+  </script>
+</body>
+</html>
