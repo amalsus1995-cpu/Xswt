@@ -14,17 +14,19 @@
     .title{font-size:24px;font-weight:bold;margin-bottom:10px}
     .muted{color:#666;font-size:13px}
     .field{margin-bottom:12px}
-    input,select{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
+    input,select,textarea{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
     .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:8px}
     .user-item{padding:12px 0;border-bottom:1px solid #efefef}
     .user-item:last-child{border-bottom:none}
+    .small-btn{padding:10px 12px;border:none;border-radius:12px;background:#f1f5f9;cursor:pointer;margin-top:8px;margin-left:6px}
+    .img-box{width:100%;max-height:180px;object-fit:cover;border-radius:14px;border:1px solid #e5e7eb;margin-top:10px}
   </style>
 </head>
 <body>
   <div class="app">
     <div class="card">
       <div class="title">لوحة الأدمن</div>
-      <div class="muted">إدارة العملاء والنقاط</div>
+      <div class="muted">إدارة العملاء، التحقق، والدعم</div>
       <button class="btn" onclick="logoutUser()">تسجيل الخروج</button>
     </div>
 
@@ -55,6 +57,16 @@
         </select>
       </div>
       <button class="btn" onclick="changeStatus()">حفظ الحالة</button>
+    </div>
+
+    <div class="card">
+      <div class="title" style="font-size:20px;">طلبات التحقق KYC</div>
+      <div id="kycList">جاري التحميل...</div>
+    </div>
+
+    <div class="card">
+      <div class="title" style="font-size:20px;">رسائل الدعم</div>
+      <div id="supportList">جاري التحميل...</div>
     </div>
   </div>
 
@@ -99,6 +111,7 @@
         <div class="user-item"><strong>${data.full_name || 'بدون اسم'}</strong></div>
         <div class="user-item">UID: ${data.uid}</div>
         <div class="user-item">الحالة: ${data.account_status || 'active'}</div>
+        <div class="user-item">KYC: ${data.kyc_status || 'not_submitted'}</div>
         <div class="user-item">الرصيد: ${wallet?.balance_points || 0} نقطة</div>
       `;
     }
@@ -177,7 +190,101 @@
       alert('تم تحديث حالة الحساب');
     }
 
-    ensureAdmin();
+    async function loadKyc(){
+      const { data, error } = await supabaseClient
+        .from("kyc_requests")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      const box = document.getElementById("kycList");
+
+      if(error || !data || !data.length){
+        box.innerHTML = "لا توجد طلبات حالياً";
+        return;
+      }
+
+      box.innerHTML = "";
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "user-item";
+        div.innerHTML = `
+          <div><strong>${item.full_name}</strong></div>
+          <div>UID: ${item.uid_number}</div>
+          <div>الدولة: ${item.country}</div>
+          <div>رقم الهوية: ${item.id_number}</div>
+          <div>الحالة: ${item.status}</div>
+          <img class="img-box" src="${SUPABASE_URL}/storage/v1/object/public/kyc-documents/${item.id_image_url}" alt="ID">
+          <img class="img-box" src="${SUPABASE_URL}/storage/v1/object/public/kyc-documents/${item.selfie_image_url}" alt="Selfie">
+          <button class="small-btn" onclick="approveKyc('${item.id}', '${item.user_id}')">قبول</button>
+          <button class="small-btn" onclick="rejectKyc('${item.id}', '${item.user_id}')">رفض</button>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    async function approveKyc(requestId, userId){
+      await supabaseClient.from("kyc_requests").update({
+        status: "approved",
+        reviewed_at: new Date().toISOString()
+      }).eq("id", requestId);
+
+      await supabaseClient.from("profiles").update({
+        kyc_status: "approved"
+      }).eq("id", userId);
+
+      alert("تم قبول التحقق");
+      loadKyc();
+    }
+
+    async function rejectKyc(requestId, userId){
+      await supabaseClient.from("kyc_requests").update({
+        status: "rejected",
+        reviewed_at: new Date().toISOString()
+      }).eq("id", requestId);
+
+      await supabaseClient.from("profiles").update({
+        kyc_status: "rejected"
+      }).eq("id", userId);
+
+      alert("تم رفض التحقق");
+      loadKyc();
+    }
+
+    async function loadSupport(){
+      const { data, error } = await supabaseClient
+        .from("support_tickets")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      const box = document.getElementById("supportList");
+
+      if(error || !data || !data.length){
+        box.innerHTML = "لا توجد رسائل حالياً";
+        return;
+      }
+
+      box.innerHTML = "";
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "user-item";
+        div.innerHTML = `
+          <div><strong>${item.subject}</strong></div>
+          <div style="margin-top:6px;">${item.message}</div>
+          <div style="margin-top:6px;color:#666;">الحالة: ${item.status}</div>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    async function init(){
+      await ensureAdmin();
+      await loadKyc();
+      await loadSupport();
+    }
+
+    init();
   </script>
 </body>
 </html>
