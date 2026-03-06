@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - السحب</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 40px}
+    .title{font-size:24px;font-weight:bold;margin-bottom:14px}
+    .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .muted{color:#666;font-size:13px}
+    .field{margin-top:12px}
+    input{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
+    .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:12px}
+    .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+    .row:last-child{border-bottom:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">سحب العملات</div>
+
+    <div class="card">
+      <div class="muted">الرصيد الحالي</div>
+      <div style="font-size:30px;font-weight:bold;margin-top:8px;" id="balanceText">0 نقطة</div>
+      <div class="muted" style="margin-top:8px;">السحب يدوي - شبكة TRC20</div>
+    </div>
+
+    <div class="card">
+      <div class="field">
+        <input id="amount" type="number" placeholder="عدد النقاط المطلوب سحبها">
+      </div>
+
+      <div class="field">
+        <input id="address" type="text" placeholder="عنوان محفظة USDT TRC20">
+      </div>
+
+      <button class="btn" onclick="submitWithdraw()">إرسال طلب السحب</button>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:bold;margin-bottom:10px;">طلبات السحب</div>
+      <div id="withdrawList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <script>
+    async function loadWallet(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const wallet = await getMyWallet();
+      if(wallet){
+        document.getElementById("balanceText").textContent = money(wallet.balance_points) + " نقطة";
+      }
+    }
+
+    async function submitWithdraw(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const amount = Number(document.getElementById("amount").value || 0);
+      const address = document.getElementById("address").value.trim();
+
+      if(amount <= 0 || !address){
+        alert("تحقق من البيانات");
+        return;
+      }
+
+      const { error } = await supabaseClient.from("withdraws").insert({
+        user_id: user.id,
+        points: amount,
+        wallet_address: address,
+        status: "pending"
+      });
+
+      if(error){
+        alert(error.message);
+        return;
+      }
+
+      alert("تم إرسال طلب السحب");
+      document.getElementById("amount").value = "";
+      document.getElementById("address").value = "";
+      loadWithdraws();
+    }
+
+    async function loadWithdraws(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const { data } = await supabaseClient
+        .from("withdraws")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      const box = document.getElementById("withdrawList");
+      if(!data || !data.length){
+        box.innerHTML = "لا توجد طلبات";
+        return;
+      }
+
+      box.innerHTML = "";
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "row";
+        div.innerHTML = `<span>${item.points} نقطة</span><strong>${item.status}</strong>`;
+        box.appendChild(div);
+      });
+    }
+
+    loadWallet();
+    loadWithdraws();
+  </script>
+</body>
+</html>
