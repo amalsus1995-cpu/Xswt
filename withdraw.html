@@ -16,8 +16,15 @@
     .field{margin-top:12px}
     input{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
     .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:12px}
+    .btn:disabled{opacity:.6}
     .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
     .row:last-child{border-bottom:none}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f8fafc;font-size:12px}
+    .ok{color:#166534}
+    .pending{color:#92400e}
+    .rejected{color:#b91c1c}
+    .warn{background:#fff7ed;border-radius:14px;padding:12px;margin-top:12px;font-size:13px;color:#9a3412;line-height:1.8}
+    .calc{background:#f8fafc;border-radius:14px;padding:12px;margin-top:12px;font-size:14px;line-height:1.9}
   </style>
 </head>
 <body>
@@ -28,18 +35,27 @@
       <div class="muted">الرصيد الحالي</div>
       <div style="font-size:30px;font-weight:bold;margin-top:8px;" id="balanceText">0 نقطة</div>
       <div class="muted" style="margin-top:8px;">السحب يدوي - شبكة TRC20</div>
+
+      <div class="warn">
+        لا يمكن سحب رأس المال قبل مرور <strong>18 يوم</strong> من تاريخ الإيداع.<br>
+        إذا تم السحب قبل 18 يوم، يتم خصم <strong>20%</strong> من الجزء المسحوب من رأس المال.
+      </div>
     </div>
 
     <div class="card">
       <div class="field">
-        <input id="amount" type="number" placeholder="عدد النقاط المطلوب سحبها">
+        <input id="amount" type="number" placeholder="عدد النقاط المطلوب سحبها" oninput="calculateWithdraw()">
       </div>
 
       <div class="field">
         <input id="address" type="text" placeholder="عنوان محفظة USDT TRC20">
       </div>
 
-      <button class="btn" onclick="submitWithdraw()">إرسال طلب السحب</button>
+      <div class="calc" id="calcBox">
+        صافي السحب: 0 نقطة
+      </div>
+
+      <button id="withdrawBtn" class="btn" onclick="submitWithdraw()">إرسال طلب السحب</button>
     </div>
 
     <div class="card">
@@ -49,20 +65,95 @@
   </div>
 
   <script>
+    let currentWallet = null;
+    let depositsData = [];
+
+    function statusClass(status){
+      if(status === "approved") return "ok";
+      if(status === "pending") return "pending";
+      if(status === "rejected") return "rejected";
+      return "";
+    }
+
     async function loadWallet(){
       const user = await ensureLoggedIn();
       if(!user) return;
 
-      const wallet = await getMyWallet();
-      if(wallet){
-        document.getElementById("balanceText").textContent = money(wallet.balance_points) + " نقطة";
+      currentWallet = await getMyWallet();
+      if(currentWallet){
+        document.getElementById("balanceText").textContent = money(currentWallet.balance_points) + " نقطة";
       }
+    }
+
+    async function loadDepositsForCalc(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const { data } = await supabaseClient
+        .from("deposits")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "confirmed")
+        .order("created_at", { ascending: true });
+
+      depositsData = data || [];
+    }
+
+    function getUnlockedPrincipal(){
+      const now = new Date();
+      let total = 0;
+
+      depositsData.forEach(d => {
+        const created = new Date(d.created_at);
+        const diffDays = (now - created) / (1000 * 60 * 60 * 24);
+        if(diffDays >= 18){
+          total += Number(d.points || 0);
+        }
+      });
+
+      return total;
+    }
+
+    function calculateWithdraw(){
+      const amount = Number(document.getElementById("amount").value || 0);
+      const box = document.getElementById("calcBox");
+
+      if(!currentWallet || amount <= 0){
+        box.innerHTML = "صافي السحب: 0 نقطة";
+        return;
+      }
+
+      const balance = Number(currentWallet.balance_points || 0);
+      const principal = Number(currentWallet.principal_points || 0);
+      const earnings = Math.max(balance - principal, 0);
+      const unlockedPrincipal = getUnlockedPrincipal();
+      const lockedPrincipal = Math.max(principal - unlockedPrincipal, 0);
+
+      let needFromPrincipal = 0;
+      if(amount > earnings){
+        needFromPrincipal = amount - earnings;
+      }
+
+      let penalty = 0;
+      if(needFromPrincipal > 0){
+        const lockedUsed = Math.min(needFromPrincipal, lockedPrincipal);
+        penalty = lockedUsed * 0.20;
+      }
+
+      const finalAmount = Math.max(amount - penalty, 0);
+
+      box.innerHTML = `
+        المبلغ المطلوب: <strong>${money(amount)}</strong> نقطة<br>
+        الخصم المتوقع: <strong>${money(penalty)}</strong> نقطة<br>
+        صافي السحب: <strong>${money(finalAmount)}</strong> نقطة
+      `;
     }
 
     async function submitWithdraw(){
       const user = await ensureLoggedIn();
       if(!user) return;
 
+      const btn = document.getElementById("withdrawBtn");
       const amount = Number(document.getElementById("amount").value || 0);
       const address = document.getElementById("address").value.trim();
 
@@ -71,12 +162,23 @@
         return;
       }
 
+      if(!currentWallet || Number(currentWallet.balance_points || 0) < amount){
+        alert("الرصيد غير كافٍ");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "جاري الإرسال...";
+
       const { error } = await supabaseClient.from("withdraws").insert({
         user_id: user.id,
         points: amount,
         wallet_address: address,
         status: "pending"
       });
+
+      btn.disabled = false;
+      btn.textContent = "إرسال طلب السحب";
 
       if(error){
         alert(error.message);
@@ -86,6 +188,7 @@
       alert("تم إرسال طلب السحب");
       document.getElementById("amount").value = "";
       document.getElementById("address").value = "";
+      calculateWithdraw();
       loadWithdraws();
     }
 
@@ -110,13 +213,25 @@
       data.forEach(item => {
         const div = document.createElement("div");
         div.className = "row";
-        div.innerHTML = `<span>${item.points} نقطة</span><strong>${item.status}</strong>`;
+        div.innerHTML = `
+          <div>
+            <div><strong>${item.points} نقطة</strong></div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">${new Date(item.created_at).toLocaleString()}</div>
+          </div>
+          <div class="pill ${statusClass(item.status)}">${item.status}</div>
+        `;
         box.appendChild(div);
       });
     }
 
-    loadWallet();
-    loadWithdraws();
+    async function init(){
+      await loadWallet();
+      await loadDepositsForCalc();
+      await loadWithdraws();
+      calculateWithdraw();
+    }
+
+    init();
   </script>
 </body>
 </html>
