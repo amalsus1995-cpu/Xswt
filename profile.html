@@ -16,6 +16,7 @@
     .name{font-size:22px;font-weight:bold}
     .muted{color:#666;font-size:13px}
     .menu-btn{width:100%;text-align:right;border:none;background:#fff;padding:16px;border-radius:18px;font-size:15px;font-weight:bold;box-shadow:0 8px 20px rgba(0,0,0,.05);margin-bottom:10px;cursor:pointer}
+    .status-box{margin-top:10px;padding:12px;border-radius:14px;background:#f8fafc;font-size:14px}
     .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px, calc(100% - 20px));background:rgba(255,255,255,.94);border:1px solid #e8e8e8;border-radius:24px;display:flex;justify-content:space-around;padding:12px 8px;box-shadow:0 16px 35px rgba(0,0,0,.12)}
     .nav-item{text-align:center;font-size:12px;color:#666;text-decoration:none;flex:1}
     .nav-item.active{color:#111;font-weight:bold}
@@ -32,12 +33,13 @@
           <div class="muted" id="emailText">email@example.com</div>
         </div>
       </div>
+      <div class="status-box" id="kycStatusBox">حالة التحقق: غير موثق</div>
     </div>
 
-    <button class="menu-btn" onclick="alert('تعديل كلمة المرور')">تعديل كلمة المرور</button>
-    <button class="menu-btn" onclick="alert('التحقق من الهوية')">التحقق من الهوية</button>
-    <button class="menu-btn" onclick="alert('من نحن')">من نحن</button>
-    <button class="menu-btn" onclick="alert('تواصل مع الإدارة')">تواصل مع الإدارة</button>
+    <button class="menu-btn" onclick="location.href='change-password.html'">تعديل كلمة المرور</button>
+    <button class="menu-btn" onclick="location.href='kyc.html'">التحقق من الهوية</button>
+    <button class="menu-btn" onclick="location.href='about.html'">من نحن</button>
+    <button class="menu-btn" onclick="location.href='support.html'">تواصل مع الإدارة</button>
     <button class="menu-btn" onclick="copyReferral()">نسخ رابط الدعوة</button>
     <button class="menu-btn" onclick="logoutUser()">تسجيل الخروج</button>
   </div>
@@ -53,6 +55,13 @@
   <script>
     let myProfile = null;
 
+    function kycText(status){
+      if(status === "approved") return "حالة التحقق: تم التحقق من الهوية";
+      if(status === "pending") return "حالة التحقق: قيد المراجعة";
+      if(status === "rejected") return "حالة التحقق: مرفوض";
+      return "حالة التحقق: غير موثق";
+    }
+
     async function loadProfile(){
       const user = await ensureLoggedIn();
       if(!user) return;
@@ -63,6 +72,7 @@
       document.getElementById('nameText').textContent = myProfile.full_name || 'المستخدم';
       document.getElementById('uidText').textContent = 'UID: ' + (myProfile.uid || '----');
       document.getElementById('emailText').textContent = myProfile.email || '';
+      document.getElementById('kycStatusBox').textContent = kycText(myProfile.kyc_status);
     }
 
     function copyReferral(){
