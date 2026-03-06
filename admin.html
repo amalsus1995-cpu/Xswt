@@ -1,615 +1,697 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>x.swt - لوحة الأدمن</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabase.js"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
-    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 40px}
-    .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
-    .title{font-size:24px;font-weight:bold;margin-bottom:10px}
-    .sub-title{font-size:20px;font-weight:bold;margin-bottom:10px}
-    .muted{color:#666;font-size:13px}
-    .field{margin-bottom:12px}
-    input,select,textarea{
-      width:100%;
-      padding:14px;
-      border:1px solid #d4d7dd;
-      border-radius:14px;
-      font-size:15px;
-      background:#fff;
-      outline:none
-    }
-    .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:16px;
-      background:linear-gradient(135deg,#dfe3e8,#ffffff);
-      font-weight:bold;
-      font-size:16px;
-      cursor:pointer;
-      box-shadow:0 8px 20px rgba(0,0,0,.07);
-      margin-top:8px
-    }
-    .user-item{
-      padding:12px 0;
-      border-bottom:1px solid #efefef
-    }
-    .user-item:last-child{
-      border-bottom:none
-    }
-    .small-btn{
-      padding:10px 12px;
-      border:none;
-      border-radius:12px;
-      background:#f1f5f9;
-      cursor:pointer;
-      margin-top:8px;
-      margin-left:6px
-    }
-    .img-box{
-      width:100%;
-      max-height:180px;
-      object-fit:cover;
-      border-radius:14px;
-      border:1px solid #e5e7eb;
-      margin-top:10px
-    }
-    .pill{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#f8fafc;
-      font-size:12px;
-      margin-top:6px
-    }
-  </style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>x.swt Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="supabase.js"></script>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:tahoma;
+background:#f4f6f9;
+}
+
+.container{
+max-width:430px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:white;
+border-radius:18px;
+padding:15px;
+margin-bottom:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+.title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.field{
+margin-top:10px;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+font-size:15px;
+}
+
+button{
+margin-top:10px;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#e5e7eb;
+font-weight:bold;
+cursor:pointer;
+width:100%;
+}
+
+.user-item{
+border-bottom:1px solid #eee;
+padding:10px 0;
+}
+
+.small{
+font-size:12px;
+color:#777;
+}
+
+.badge{
+padding:4px 8px;
+border-radius:8px;
+font-size:12px;
+background:#f1f5f9;
+}
+
+</style>
+
 </head>
+
 <body>
-  <div class="app">
-    <div class="card">
-      <div class="title">لوحة الأدمن</div>
-      <div class="muted">إدارة العملاء، التحقق، الدعم، الإيداع والسحب</div>
-      <button class="btn" onclick="logoutUser()">تسجيل الخروج</button>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">البحث عن مستخدم</div>
-      <div class="field">
-        <input id="searchEmail" type="text" placeholder="ابحث بإيميل المستخدم">
-      </div>
-      <button class="btn" onclick="findUser()">بحث عن مستخدم</button>
-      <div id="userResult" style="margin-top:12px;"></div>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">إضافة أو خصم نقاط</div>
-      <div class="field">
-        <input id="pointsEmail" type="text" placeholder="إيميل المستخدم">
-      </div>
-      <div class="field">
-        <input id="pointsAmount" type="number" placeholder="عدد النقاط">
-      </div>
-      <div class="field">
-        <select id="pointsAction">
-          <option value="add">إضافة نقاط</option>
-          <option value="deduct">خصم نقاط</option>
-        </select>
-      </div>
-      <button class="btn" onclick="adjustPoints()">تنفيذ</button>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">حظر أو فك حظر</div>
-      <div class="field">
-        <input id="banEmail" type="text" placeholder="إيميل المستخدم">
-      </div>
-      <div class="field">
-        <select id="banAction">
-          <option value="banned">حظر الحساب</option>
-          <option value="active">فك الحظر</option>
-        </select>
-      </div>
-      <button class="btn" onclick="changeStatus()">حفظ الحالة</button>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">طلبات الإيداع</div>
-      <div id="depositList">جاري التحميل...</div>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">طلبات السحب</div>
-      <div id="withdrawList">جاري التحميل...</div>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">طلبات التحقق KYC</div>
-      <div id="kycList">جاري التحميل...</div>
-    </div>
-
-    <div class="card">
-      <div class="sub-title">رسائل الدعم</div>
-      <div id="supportList">جاري التحميل...</div>
-    </div>
-  </div>
-
-  <script>
-    async function ensureAdmin(){
-      const user = await ensureLoggedIn();
-      if(!user) return null;
-
-      const profile = await getMyProfile();
-      if(!profile || profile.role !== 'admin'){
-        window.location.href = 'index.html';
-        return null;
-      }
-      return profile;
-    }
-
-    async function findUser(){
-      await ensureAdmin();
-      const email = document.getElementById('searchEmail').value.trim();
-      const box = document.getElementById('userResult');
-
-      if(!email) return;
-
-      const { data } = await supabaseClient
-        .from('profiles')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if(!data){
-        box.innerHTML = 'المستخدم غير موجود';
-        return;
-      }
-
-      const { data: wallet } = await supabaseClient
-        .from('wallets')
-        .select('*')
-        .eq('user_id', data.id)
-        .single();
-
-      box.innerHTML = `
-        <div class="user-item"><strong>${data.full_name || 'بدون اسم'}</strong></div>
-        <div class="user-item">UID: ${data.uid}</div>
-        <div class="user-item">الحالة: ${data.account_status || 'active'}</div>
-        <div class="user-item">KYC: ${data.kyc_status || 'not_submitted'}</div>
-        <div class="user-item">الرصيد: ${wallet?.balance_points || 0} نقطة</div>
-        <div class="user-item">رأس المال: ${wallet?.principal_points || 0}</div>
-        <div class="user-item">أرباح الدعوات: ${wallet?.referral_points || 0}</div>
-        <div class="user-item">أرباح الفريق: ${wallet?.team_profit_points || 0}</div>
-      `;
-    }
-
-    async function getUserIdByEmail(email){
-      const { data } = await supabaseClient
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-      return data?.id || null;
-    }
-
-    async function adjustPoints(){
-      await ensureAdmin();
-
-      const email = document.getElementById('pointsEmail').value.trim();
-      const amount = Number(document.getElementById('pointsAmount').value || 0);
-      const action = document.getElementById('pointsAction').value;
-      const userId = await getUserIdByEmail(email);
-
-      if(!userId || amount <= 0){
-        alert('تحقق من البيانات');
-        return;
-      }
-
-      const { data: wallet } = await supabaseClient
-        .from('wallets')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if(!wallet){
-        alert('المحفظة غير موجودة');
-        return;
-      }
-
-      const newBalance = action === 'add'
-        ? Number(wallet.balance_points || 0) + amount
-        : Math.max(Number(wallet.balance_points || 0) - amount, 0);
-
-      const { error } = await supabaseClient
-        .from('wallets')
-        .update({ balance_points: newBalance })
-        .eq('user_id', userId);
-
-      if(error){
-        alert(error.message);
-        return;
-      }
-
-      alert('تم التنفيذ بنجاح');
-      findUser();
-    }
-
-    async function changeStatus(){
-      await ensureAdmin();
-
-      const email = document.getElementById('banEmail').value.trim();
-      const status = document.getElementById('banAction').value;
-
-      if(!email){
-        alert('اكتب الإيميل');
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from('profiles')
-        .update({ account_status: status })
-        .eq('email', email);
-
-      if(error){
-        alert(error.message);
-        return;
-      }
-
-      alert('تم تحديث حالة الحساب');
-    }
-
-    async function approveDeposit(depositId, userId, points){
-      await ensureAdmin();
-
-      const { data: deposit } = await supabaseClient
-        .from("deposits")
-        .select("*")
-        .eq("id", depositId)
-        .single();
-
-      if(!deposit){
-        alert("طلب الإيداع غير موجود");
-        return;
-      }
-
-      if(deposit.status !== "pending"){
-        alert("هذا الطلب تمت معالجته مسبقاً");
-        return;
-      }
-
-      const { data: wallet } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if(!wallet){
-        alert("المحفظة غير موجودة");
-        return;
-      }
-
-      const newBalance = Number(wallet.balance_points || 0) + Number(points || 0);
-      const newPrincipal = Number(wallet.principal_points || 0) + Number(points || 0);
-
-      const { error: walletError } = await supabaseClient
-        .from("wallets")
-        .update({
-          balance_points: newBalance,
-          principal_points: newPrincipal
-        })
-        .eq("user_id", userId);
-
-      if(walletError){
-        alert(walletError.message);
-        return;
-      }
-
-      const { error: depositError } = await supabaseClient
-        .from("deposits")
-        .update({ status: "confirmed" })
-        .eq("id", depositId);
-
-      if(depositError){
-        alert(depositError.message);
-        return;
-      }
-
-      try{
-        await supabaseClient.rpc("apply_referral_rewards", {
-          p_deposit_id: depositId
-        });
-      }catch(e){}
-
-      alert("تم قبول الإيداع وإضافة النقاط");
-      loadDeposits();
-    }
-
-    async function rejectDeposit(depositId){
-      await ensureAdmin();
-
-      const { error } = await supabaseClient
-        .from("deposits")
-        .update({ status: "rejected" })
-        .eq("id", depositId);
-
-      if(error){
-        alert(error.message);
-        return;
-      }
-
-      alert("تم رفض الإيداع");
-      loadDeposits();
-    }
-
-    async function loadDeposits(){
-      const { data, error } = await supabaseClient
-        .from("deposits")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(20);
-
-      const box = document.getElementById("depositList");
-
-      if(error || !data || !data.length){
-        box.innerHTML = "لا توجد طلبات إيداع حالياً";
-        return;
-      }
-
-      box.innerHTML = "";
-      for(const item of data){
-        const { data: profile } = await supabaseClient
-          .from("profiles")
-          .select("email, full_name, uid")
-          .eq("id", item.user_id)
-          .single();
-
-        const div = document.createElement("div");
-        div.className = "user-item";
-        div.innerHTML = `
-          <div><strong>${profile?.full_name || 'بدون اسم'}</strong></div>
-          <div>UID: ${profile?.uid || '---'}</div>
-          <div>الإيميل: ${profile?.email || ''}</div>
-          <div>المبلغ: ${item.amount_usdt || 0} USDT</div>
-          <div>النقاط: ${item.points || 0}</div>
-          <div>TX Hash: ${item.tx_hash || '---'}</div>
-          <div class="pill">الحالة: ${item.status}</div>
-          ${item.status === 'pending' ? `
-            <button class="small-btn" onclick="approveDeposit('${item.id}','${item.user_id}','${item.points || 0}')">قبول الإيداع</button>
-            <button class="small-btn" onclick="rejectDeposit('${item.id}')">رفض الإيداع</button>
-          ` : ``}
-        `;
-        box.appendChild(div);
-      }
-    }
-
-    async function approveWithdraw(withdrawId, userId, points){
-      await ensureAdmin();
-
-      const { data: request } = await supabaseClient
-        .from("withdraws")
-        .select("*")
-        .eq("id", withdrawId)
-        .single();
-
-      if(!request){
-        alert("طلب السحب غير موجود");
-        return;
-      }
-
-      if(request.status !== "pending"){
-        alert("هذا الطلب تمت معالجته مسبقاً");
-        return;
-      }
-
-      const { data: wallet } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if(!wallet){
-        alert("المحفظة غير موجودة");
-        return;
-      }
-
-      if(Number(wallet.balance_points || 0) < Number(points || 0)){
-        alert("رصيد المستخدم غير كافٍ");
-        return;
-      }
-
-      const newBalance = Number(wallet.balance_points || 0) - Number(points || 0);
-
-      const { error: walletError } = await supabaseClient
-        .from("wallets")
-        .update({ balance_points: newBalance })
-        .eq("user_id", userId);
-
-      if(walletError){
-        alert(walletError.message);
-        return;
-      }
-
-      const { error: withdrawError } = await supabaseClient
-        .from("withdraws")
-        .update({ status: "approved" })
-        .eq("id", withdrawId);
-
-      if(withdrawError){
-        alert(withdrawError.message);
-        return;
-      }
-
-      alert("تم قبول السحب وخصم النقاط");
-      loadWithdraws();
-    }
-
-    async function rejectWithdraw(withdrawId){
-      await ensureAdmin();
-
-      const { error } = await supabaseClient
-        .from("withdraws")
-        .update({ status: "rejected" })
-        .eq("id", withdrawId);
-
-      if(error){
-        alert(error.message);
-        return;
-      }
-
-      alert("تم رفض السحب");
-      loadWithdraws();
-    }
-
-    async function loadWithdraws(){
-      const { data, error } = await supabaseClient
-        .from("withdraws")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(20);
-
-      const box = document.getElementById("withdrawList");
-
-      if(error || !data || !data.length){
-        box.innerHTML = "لا توجد طلبات سحب حالياً";
-        return;
-      }
-
-      box.innerHTML = "";
-      for(const item of data){
-        const { data: profile } = await supabaseClient
-          .from("profiles")
-          .select("email, full_name, uid")
-          .eq("id", item.user_id)
-          .single();
-
-        const div = document.createElement("div");
-        div.className = "user-item";
-        div.innerHTML = `
-          <div><strong>${profile?.full_name || 'بدون اسم'}</strong></div>
-          <div>UID: ${profile?.uid || '---'}</div>
-          <div>الإيميل: ${profile?.email || ''}</div>
-          <div>عدد النقاط: ${item.points || 0}</div>
-          <div>المحفظة: ${item.wallet_address || '---'}</div>
-          <div class="pill">الحالة: ${item.status}</div>
-          ${item.status === 'pending' ? `
-            <button class="small-btn" onclick="approveWithdraw('${item.id}','${item.user_id}','${item.points || 0}')">قبول السحب</button>
-            <button class="small-btn" onclick="rejectWithdraw('${item.id}')">رفض السحب</button>
-          ` : ``}
-        `;
-        box.appendChild(div);
-      }
-    }
-
-    async function loadKyc(){
-      const { data, error } = await supabaseClient
-        .from("kyc_requests")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      const box = document.getElementById("kycList");
-
-      if(error || !data || !data.length){
-        box.innerHTML = "لا توجد طلبات حالياً";
-        return;
-      }
-
-      box.innerHTML = "";
-      data.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "user-item";
-        div.innerHTML = `
-          <div><strong>${item.full_name}</strong></div>
-          <div>UID: ${item.uid_number}</div>
-          <div>الدولة: ${item.country}</div>
-          <div>رقم الهوية: ${item.id_number}</div>
-          <div>الحالة: ${item.status}</div>
-          <img class="img-box" src="${SUPABASE_URL}/storage/v1/object/public/kyc-documents/${item.id_image_url}" alt="ID">
-          <img class="img-box" src="${SUPABASE_URL}/storage/v1/object/public/kyc-documents/${item.selfie_image_url}" alt="Selfie">
-          <button class="small-btn" onclick="approveKyc('${item.id}', '${item.user_id}')">قبول</button>
-          <button class="small-btn" onclick="rejectKyc('${item.id}', '${item.user_id}')">رفض</button>
-        `;
-        box.appendChild(div);
-      });
-    }
-
-    async function approveKyc(requestId, userId){
-      await supabaseClient
-        .from("kyc_requests")
-        .update({
-          status: "approved",
-          reviewed_at: new Date().toISOString()
-        })
-        .eq("id", requestId);
-
-      await supabaseClient
-        .from("profiles")
-        .update({ kyc_status: "approved" })
-        .eq("id", userId);
-
-      alert("تم قبول التحقق");
-      loadKyc();
-    }
-
-    async function rejectKyc(requestId, userId){
-      await supabaseClient
-        .from("kyc_requests")
-        .update({
-          status: "rejected",
-          reviewed_at: new Date().toISOString()
-        })
-        .eq("id", requestId);
-
-      await supabaseClient
-        .from("profiles")
-        .update({ kyc_status: "rejected" })
-        .eq("id", userId);
-
-      alert("تم رفض التحقق");
-      loadKyc();
-    }
-
-    async function loadSupport(){
-      const { data, error } = await supabaseClient
-        .from("support_tickets")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      const box = document.getElementById("supportList");
-
-      if(error || !data || !data.length){
-        box.innerHTML = "لا توجد رسائل حالياً";
-        return;
-      }
-
-      box.innerHTML = "";
-      data.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "user-item";
-        div.innerHTML = `
-          <div><strong>${item.subject}</strong></div>
-          <div style="margin-top:6px;">${item.message}</div>
-          <div style="margin-top:6px;color:#666;">الحالة: ${item.status}</div>
-        `;
-        box.appendChild(div);
-      });
-    }
-
-    async function init(){
-      await ensureAdmin();
-      await loadDeposits();
-      await loadWithdraws();
-      await loadKyc();
-      await loadSupport();
-    }
-
-    init();
-  </script>
+
+<div class="container">
+
+<div class="card">
+
+<div class="title">
+لوحة الأدمن
+</div>
+
+<button onclick="logoutUser()">
+تسجيل الخروج
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+البحث عن مستخدم
+</div>
+
+<input id="searchEmail" placeholder="ادخل ايميل المستخدم">
+
+<button onclick="findUser()">
+بحث
+</button>
+
+<div id="userResult"></div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+إضافة او خصم نقاط
+</div>
+
+<input id="pointsEmail" placeholder="ايميل المستخدم">
+
+<input id="pointsAmount" type="number" placeholder="عدد النقاط">
+
+<select id="pointsAction">
+
+<option value="add">اضافة</option>
+
+<option value="deduct">خصم</option>
+
+</select>
+
+<button onclick="adjustPoints()">
+تنفيذ
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+حظر الحساب
+</div>
+
+<input id="banEmail" placeholder="ايميل المستخدم">
+
+<select id="banAction">
+
+<option value="active">فك الحظر</option>
+
+<option value="banned">حظر</option>
+
+</select>
+
+<button onclick="changeStatus()">
+حفظ
+</button>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+طلبات الإيداع
+</div>
+
+<div id="depositList">
+جاري التحميل...
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+طلبات السحب
+</div>
+
+<div id="withdrawList">
+جاري التحميل...
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+طلبات KYC
+</div>
+
+<div id="kycList">
+جاري التحميل...
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+رسائل الدعم
+</div>
+
+<div id="supportList">
+جاري التحميل...
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+async function ensureAdmin(){
+
+const user = await ensureLoggedIn()
+
+if(!user)return
+
+const profile = await getMyProfile()
+
+if(profile.role !== "admin"){
+
+alert("ليس لديك صلاحية")
+
+window.location.href="index.html"
+
+}
+
+}
+
+async function findUser(){
+
+await ensureAdmin()
+
+const email = document.getElementById("searchEmail").value
+
+const {data} = await supabaseClient
+
+.from("profiles")
+
+.select("*")
+
+.eq("email",email)
+
+.single()
+
+if(!data){
+
+document.getElementById("userResult").innerHTML="المستخدم غير موجود"
+
+return
+
+}
+
+const {data:wallet}=await supabaseClient
+
+.from("wallets")
+
+.select("*")
+
+.eq("user_id",data.id)
+
+.single()
+
+document.getElementById("userResult").innerHTML=
+
+`
+
+<div class="user-item">
+
+<b>${data.full_name}</b>
+
+<div class="small">UID: ${data.uid}</div>
+
+<div class="small">الحالة: ${data.account_status}</div>
+
+<div class="small">الرصيد: ${wallet?.balance_points || 0}</div>
+
+</div>
+
+`
+
+}
+
+async function adjustPoints(){
+
+await ensureAdmin()
+
+const email=document.getElementById("pointsEmail").value
+
+const amount=Number(document.getElementById("pointsAmount").value)
+
+const action=document.getElementById("pointsAction").value
+
+const {data}=await supabaseClient
+
+.from("profiles")
+
+.select("id")
+
+.eq("email",email)
+
+.single()
+
+if(!data)return alert("المستخدم غير موجود")
+
+const {data:wallet}=await supabaseClient
+
+.from("wallets")
+
+.select("*")
+
+.eq("user_id",data.id)
+
+.single()
+
+let newBalance=wallet.balance_points
+
+if(action==="add") newBalance+=amount
+
+else newBalance-=amount
+
+await supabaseClient
+
+.from("wallets")
+
+.update({balance_points:newBalance})
+
+.eq("user_id",data.id)
+
+alert("تم التعديل")
+
+}
+
+async function changeStatus(){
+
+await ensureAdmin()
+
+const email=document.getElementById("banEmail").value
+
+const status=document.getElementById("banAction").value
+
+await supabaseClient
+
+.from("profiles")
+
+.update({account_status:status})
+
+.eq("email",email)
+
+alert("تم التحديث")
+
+}
+
+async function loadDeposits(){
+
+const {data}=await supabaseClient
+
+.from("deposits")
+
+.select("*")
+
+.order("created_at",{ascending:false})
+
+.limit(20)
+
+let html=""
+
+data.forEach(d=>{
+
+html+=`
+
+<div class="user-item">
+
+<div>المبلغ: ${d.amount_usdt}</div>
+
+<div class="small">${d.status}</div>
+
+<button onclick="approveDeposit('${d.id}','${d.user_id}','${d.points}')">
+
+قبول
+
+</button>
+
+<button onclick="rejectDeposit('${d.id}')">
+
+رفض
+
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("depositList").innerHTML=html
+
+}
+
+async function approveDeposit(id,user,points){
+
+const {data:wallet}=await supabaseClient
+
+.from("wallets")
+
+.select("*")
+
+.eq("user_id",user)
+
+.single()
+
+let newBalance=wallet.balance_points+points
+
+let newPrincipal=wallet.principal_points+points
+
+await supabaseClient
+
+.from("wallets")
+
+.update({
+
+balance_points:newBalance,
+
+principal_points:newPrincipal
+
+})
+
+.eq("user_id",user)
+
+await supabaseClient
+
+.from("deposits")
+
+.update({status:"confirmed"})
+
+.eq("id",id)
+
+alert("تم قبول الإيداع")
+
+loadDeposits()
+
+}
+
+async function rejectDeposit(id){
+
+await supabaseClient
+
+.from("deposits")
+
+.update({status:"rejected"})
+
+.eq("id",id)
+
+loadDeposits()
+
+}
+
+async function loadWithdraws(){
+
+const {data}=await supabaseClient
+
+.from("withdraws")
+
+.select("*")
+
+.order("created_at",{ascending:false})
+
+.limit(20)
+
+let html=""
+
+data.forEach(w=>{
+
+html+=`
+
+<div class="user-item">
+
+<div>${w.points} نقطة</div>
+
+<div class="small">${w.status}</div>
+
+<button onclick="approveWithdraw('${w.id}','${w.user_id}','${w.points}')">
+
+قبول
+
+</button>
+
+<button onclick="rejectWithdraw('${w.id}')">
+
+رفض
+
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("withdrawList").innerHTML=html
+
+}
+
+async function approveWithdraw(id,user,points){
+
+const {data:wallet}=await supabaseClient
+
+.from("wallets")
+
+.select("*")
+
+.eq("user_id",user)
+
+.single()
+
+let newBalance=wallet.balance_points-points
+
+await supabaseClient
+
+.from("wallets")
+
+.update({balance_points:newBalance})
+
+.eq("user_id",user)
+
+await supabaseClient
+
+.from("withdraws")
+
+.update({status:"approved"})
+
+.eq("id",id)
+
+alert("تم السحب")
+
+loadWithdraws()
+
+}
+
+async function rejectWithdraw(id){
+
+await supabaseClient
+
+.from("withdraws")
+
+.update({status:"rejected"})
+
+.eq("id",id)
+
+loadWithdraws()
+
+}
+
+async function loadKyc(){
+
+const {data}=await supabaseClient
+
+.from("kyc_requests")
+
+.select("*")
+
+.limit(10)
+
+let html=""
+
+data.forEach(k=>{
+
+html+=`
+
+<div class="user-item">
+
+<div>${k.full_name}</div>
+
+<button onclick="approveKyc('${k.id}','${k.user_id}')">
+
+قبول
+
+</button>
+
+<button onclick="rejectKyc('${k.id}','${k.user_id}')">
+
+رفض
+
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("kycList").innerHTML=html
+
+}
+
+async function approveKyc(id,user){
+
+await supabaseClient
+
+.from("kyc_requests")
+
+.update({status:"approved"})
+
+.eq("id",id)
+
+await supabaseClient
+
+.from("profiles")
+
+.update({kyc_status:"approved"})
+
+.eq("id",user)
+
+loadKyc()
+
+}
+
+async function rejectKyc(id,user){
+
+await supabaseClient
+
+.from("kyc_requests")
+
+.update({status:"rejected"})
+
+.eq("id",id)
+
+await supabaseClient
+
+.from("profiles")
+
+.update({kyc_status:"rejected"})
+
+.eq("id",user)
+
+loadKyc()
+
+}
+
+async function loadSupport(){
+
+const {data}=await supabaseClient
+
+.from("support_tickets")
+
+.select("*")
+
+.limit(10)
+
+let html=""
+
+data.forEach(s=>{
+
+html+=`
+
+<div class="user-item">
+
+<div>${s.subject}</div>
+
+<div class="small">${s.message}</div>
+
+</div>
+
+`
+
+})
+
+document.getElementById("supportList").innerHTML=html
+
+}
+
+async function init(){
+
+await ensureAdmin()
+
+loadDeposits()
+
+loadWithdraws()
+
+loadKyc()
+
+loadSupport()
+
+}
+
+init()
+
+</script>
+
 </body>
+
 </html>
