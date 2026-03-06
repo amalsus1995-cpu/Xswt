@@ -13,36 +13,37 @@
     body{
       margin:0;
       font-family:Tahoma,Arial,sans-serif;
-      background:linear-gradient(180deg,#f7f8fa,#edf1f5);
-      color:#222;
+      background:linear-gradient(180deg,#f4f6f9,#e9eef5);
+      color:#1f2937;
     }
     .app{
-      max-width:430px;
+      max-width:460px;
       margin:0 auto;
       min-height:100vh;
       padding:16px 14px 40px;
     }
     .card{
       background:#fff;
-      border:1px solid #e6e6e6;
-      border-radius:22px;
+      border:1px solid #e5e7eb;
+      border-radius:24px;
       padding:16px;
-      box-shadow:0 12px 30px rgba(0,0,0,.08);
+      box-shadow:0 12px 28px rgba(0,0,0,.08);
       margin-bottom:14px;
     }
     .title{
-      font-size:24px;
-      font-weight:bold;
+      font-size:26px;
+      font-weight:700;
       margin-bottom:8px;
     }
     .sub-title{
       font-size:20px;
-      font-weight:bold;
-      margin-bottom:10px;
+      font-weight:700;
+      margin-bottom:12px;
     }
     .muted{
-      color:#666;
+      color:#6b7280;
       font-size:13px;
+      line-height:1.7;
     }
     .field{
       margin-bottom:12px;
@@ -50,56 +51,43 @@
     input,select,textarea{
       width:100%;
       padding:14px;
-      border:1px solid #d4d7dd;
-      border-radius:14px;
+      border:1px solid #d1d5db;
+      border-radius:16px;
       font-size:15px;
       background:#fff;
       outline:none;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:#9ca3af;
     }
     .btn{
       width:100%;
       padding:14px;
       border:none;
       border-radius:16px;
-      background:linear-gradient(135deg,#dfe3e8,#ffffff);
-      font-weight:bold;
+      background:linear-gradient(135deg,#e8edf3,#ffffff);
+      font-weight:700;
       font-size:16px;
       cursor:pointer;
-      box-shadow:0 8px 20px rgba(0,0,0,.07);
+      box-shadow:0 8px 20px rgba(0,0,0,.06);
       margin-top:8px;
     }
-    .small-btn{
-      padding:10px 12px;
-      border:none;
-      border-radius:12px;
-      background:#f1f5f9;
-      cursor:pointer;
-      margin-top:8px;
-      margin-left:6px;
-      font-size:13px;
+    .btn-dark{
+      background:#111827;
+      color:#fff;
     }
-    .item{
-      padding:12px 0;
-      border-bottom:1px solid #efefef;
+    .btn-green{
+      background:#e8f7ee;
+      color:#166534;
     }
-    .item:last-child{
-      border-bottom:none;
+    .btn-red{
+      background:#fdecec;
+      color:#b42318;
     }
-    .pill{
-      display:inline-block;
-      padding:6px 10px;
-      border-radius:999px;
-      background:#f8fafc;
-      font-size:12px;
-      margin-top:8px;
-      border:1px solid #e5e7eb;
-    }
-    .img-box{
-      width:100%;
-      max-height:180px;
-      object-fit:cover;
-      border-radius:14px;
-      border:1px solid #e5e7eb;
+    .btn-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
       margin-top:10px;
     }
     .stats{
@@ -109,18 +97,73 @@
     }
     .stat{
       background:#fff;
-      border:1px solid #e6e6e6;
+      border:1px solid #e5e7eb;
       border-radius:18px;
       padding:14px;
       box-shadow:0 8px 20px rgba(0,0,0,.05);
     }
     .stat .n{
       font-size:24px;
-      font-weight:bold;
+      font-weight:800;
       margin-top:8px;
     }
-    .ok{color:#166534}
-    .danger{color:#b42318}
+    .user-box{
+      background:#f9fafb;
+      border:1px solid #e5e7eb;
+      border-radius:18px;
+      padding:14px;
+      margin-top:12px;
+    }
+    .user-line{
+      padding:10px 0;
+      border-bottom:1px solid #eceff3;
+      font-size:15px;
+    }
+    .user-line:last-child{
+      border-bottom:none;
+    }
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f3f4f6;
+      border:1px solid #e5e7eb;
+      font-size:12px;
+      margin-top:8px;
+    }
+    .list-item{
+      padding:12px 0;
+      border-bottom:1px solid #eef2f7;
+    }
+    .list-item:last-child{
+      border-bottom:none;
+    }
+    .small-btn{
+      padding:10px 12px;
+      border:none;
+      border-radius:12px;
+      background:#eef2f7;
+      cursor:pointer;
+      margin-top:8px;
+      margin-left:6px;
+      font-size:13px;
+      font-weight:700;
+    }
+    .img-box{
+      width:100%;
+      max-height:180px;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid #e5e7eb;
+      margin-top:10px;
+      background:#fff;
+    }
+    .success{
+      color:#166534;
+    }
+    .danger{
+      color:#b42318;
+    }
   </style>
 </head>
 <body>
@@ -128,8 +171,8 @@
 
     <div class="card">
       <div class="title">لوحة الأدمن</div>
-      <div class="muted">إدارة المستخدمين، الرصيد، الإيداع، السحب، التحقق، والدعم</div>
-      <button class="btn" onclick="logoutUser()">تسجيل الخروج</button>
+      <div class="muted">إدارة العملاء، الرصيد، الإيداع، السحب، KYC، الدعم، وكود اليوم.</div>
+      <button class="btn btn-dark" onclick="logoutUser()">تسجيل الخروج</button>
     </div>
 
     <div class="stats">
@@ -152,35 +195,40 @@
     </div>
 
     <div class="card" style="margin-top:14px;">
-      <div class="sub-title">البحث عن مستخدم</div>
+      <div class="sub-title">البحث عن عميل</div>
       <div class="field">
-        <input id="searchEmail" type="text" placeholder="ابحث بإيميل المستخدم">
+        <input id="searchEmail" type="text" placeholder="اكتب إيميل العميل">
       </div>
       <button class="btn" onclick="findUser()">بحث</button>
-      <div id="userResult" style="margin-top:12px;"></div>
+      <div id="userResult"></div>
     </div>
 
     <div class="card">
-      <div class="sub-title">إضافة أو خصم رصيد مباشر</div>
+      <div class="sub-title">إضافة أو خصم نقاط للعميل</div>
+      <div class="muted">اكتب إيميل العميل ثم عدد النقاط، وبعدها اختر إضافة أو خصم.</div>
+
       <div class="field">
-        <input id="pointsEmail" type="text" placeholder="إيميل المستخدم">
+        <input id="pointsEmail" type="text" placeholder="إيميل العميل">
       </div>
+
       <div class="field">
         <input id="pointsAmount" type="number" placeholder="عدد النقاط">
       </div>
+
       <div class="field">
         <select id="pointsAction">
-          <option value="add">إضافة رصيد</option>
-          <option value="deduct">خصم رصيد</option>
+          <option value="add">إضافة نقاط</option>
+          <option value="deduct">خصم نقاط</option>
         </select>
       </div>
-      <button class="btn" onclick="adjustPoints()">تنفيذ</button>
+
+      <button class="btn btn-dark" onclick="adjustPoints()">تنفيذ العملية</button>
     </div>
 
     <div class="card">
-      <div class="sub-title">حظر أو فك حظر</div>
+      <div class="sub-title">حظر أو فك حظر العميل</div>
       <div class="field">
-        <input id="banEmail" type="text" placeholder="إيميل المستخدم">
+        <input id="banEmail" type="text" placeholder="إيميل العميل">
       </div>
       <div class="field">
         <select id="banAction">
@@ -192,7 +240,7 @@
     </div>
 
     <div class="card">
-      <div class="sub-title">إنشاء كود يومي</div>
+      <div class="sub-title">كود اليوم</div>
       <div class="field">
         <input id="dailyCodeInput" type="text" placeholder="اكتب كود اليوم">
       </div>
@@ -210,7 +258,7 @@
     </div>
 
     <div class="card">
-      <div class="sub-title">طلبات التحقق KYC</div>
+      <div class="sub-title">طلبات KYC</div>
       <div id="kycList">جاري التحميل...</div>
     </div>
 
@@ -228,11 +276,46 @@
 
       const profile = await getMyProfile();
       if(!profile || profile.role !== "admin"){
-        alert("ليس لديك صلاحية الوصول");
+        alert("ليس لديك صلاحية الدخول إلى لوحة الأدمن");
         window.location.href = "index.html";
         return null;
       }
       return profile;
+    }
+
+    async function getOrCreateWallet(userId){
+      let { data: wallet, error } = await supabaseClient
+        .from("wallets")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if(!wallet || error){
+        const { error: insertError } = await supabaseClient
+          .from("wallets")
+          .insert({
+            user_id: userId,
+            balance_points: 0,
+            principal_points: 0,
+            earned_points: 0,
+            referral_points: 0,
+            team_profit_points: 0
+          });
+
+        if(insertError){
+          throw new Error(insertError.message);
+        }
+
+        const retry = await supabaseClient
+          .from("wallets")
+          .select("*")
+          .eq("user_id", userId)
+          .single();
+
+        wallet = retry.data;
+      }
+
+      return wallet;
     }
 
     async function loadStats(){
@@ -268,40 +351,44 @@
       const box = document.getElementById("userResult");
 
       if(!email){
-        box.innerHTML = "اكتب الإيميل أولاً";
+        box.innerHTML = `<div class="user-box danger">اكتب الإيميل أولاً</div>`;
         return;
       }
 
-      const { data: profile } = await supabaseClient
+      const { data: profile, error } = await supabaseClient
         .from("profiles")
         .select("*")
         .eq("email", email)
         .single();
 
-      if(!profile){
-        box.innerHTML = "المستخدم غير موجود";
+      if(error || !profile){
+        box.innerHTML = `<div class="user-box danger">المستخدم غير موجود</div>`;
         return;
       }
 
-      const { data: wallet } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", profile.id)
-        .single();
+      let wallet = null;
+      try{
+        wallet = await getOrCreateWallet(profile.id);
+      }catch(e){
+        box.innerHTML = `<div class="user-box danger">فشل تحميل محفظة المستخدم: ${e.message}</div>`;
+        return;
+      }
 
       box.innerHTML = `
-        <div class="item"><strong>${profile.full_name || "بدون اسم"}</strong></div>
-        <div class="item">UID: ${profile.uid || "---"}</div>
-        <div class="item">الإيميل: ${profile.email || ""}</div>
-        <div class="item">الحالة: ${profile.account_status || "active"}</div>
-        <div class="item">تفعيل الحساب: ${profile.activation_status || "inactive"}</div>
-        <div class="item">VIP: ${profile.vip_status || "normal"}</div>
-        <div class="item">KYC: ${profile.kyc_status || "not_submitted"}</div>
-        <div class="item">عدد الدعوات: ${profile.referral_count || 0}</div>
-        <div class="item">الرصيد: ${wallet?.balance_points || 0} نقطة</div>
-        <div class="item">رأس المال: ${wallet?.principal_points || 0}</div>
-        <div class="item">أرباح الدعوات: ${wallet?.referral_points || 0}</div>
-        <div class="item">أرباح الفريق: ${wallet?.team_profit_points || 0}</div>
+        <div class="user-box">
+          <div class="user-line"><strong>${profile.full_name || "بدون اسم"}</strong></div>
+          <div class="user-line">UID: ${profile.uid || "---"}</div>
+          <div class="user-line">الإيميل: ${profile.email || ""}</div>
+          <div class="user-line">الحالة: ${profile.account_status || "active"}</div>
+          <div class="user-line">تفعيل الحساب: ${profile.activation_status || "inactive"}</div>
+          <div class="user-line">VIP: ${profile.vip_status || "normal"}</div>
+          <div class="user-line">KYC: ${profile.kyc_status || "not_submitted"}</div>
+          <div class="user-line">عدد الدعوات: ${profile.referral_count || 0}</div>
+          <div class="user-line"><strong>الرصيد: ${wallet?.balance_points || 0} نقطة</strong></div>
+          <div class="user-line">رأس المال: ${wallet?.principal_points || 0}</div>
+          <div class="user-line">أرباح الدعوات: ${wallet?.referral_points || 0}</div>
+          <div class="user-line">أرباح الفريق: ${wallet?.team_profit_points || 0}</div>
+        </div>
       `;
     }
 
@@ -312,8 +399,8 @@
       const amount = Number(document.getElementById("pointsAmount").value || 0);
       const action = document.getElementById("pointsAction").value;
 
-      if (!email || amount <= 0) {
-        alert("تحقق من الإيميل وعدد النقاط");
+      if(!email || amount <= 0){
+        alert("اكتب إيميل العميل وعدد النقاط بشكل صحيح");
         return;
       }
 
@@ -323,27 +410,24 @@
         .eq("email", email)
         .single();
 
-      if (profileError || !profile) {
-        alert("المستخدم غير موجود");
+      if(profileError || !profile){
+        alert("العميل غير موجود");
         return;
       }
 
-      const { data: wallet, error: walletError } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", profile.id)
-        .single();
-
-      if (walletError || !wallet) {
-        alert("محفظة المستخدم غير موجودة");
+      let wallet;
+      try{
+        wallet = await getOrCreateWallet(profile.id);
+      }catch(e){
+        alert("فشل إنشاء أو تحميل محفظة العميل: " + e.message);
         return;
       }
 
       let newBalance = Number(wallet.balance_points || 0);
 
-      if (action === "add") {
+      if(action === "add"){
         newBalance += amount;
-      } else {
+      }else{
         newBalance = Math.max(newBalance - amount, 0);
       }
 
@@ -354,8 +438,8 @@
         })
         .eq("user_id", profile.id);
 
-      if (updateError) {
-        alert(updateError.message);
+      if(updateError){
+        alert("فشل تحديث الرصيد: " + updateError.message);
         return;
       }
 
@@ -370,7 +454,9 @@
         created_at: new Date().toISOString()
       });
 
-      alert(action === "add" ? "تمت إضافة الرصيد بنجاح" : "تم خصم الرصيد بنجاح");
+      alert(action === "add" ? "تمت إضافة النقاط بنجاح" : "تم خصم النقاط بنجاح");
+
+      document.getElementById("searchEmail").value = email;
       await findUser();
       await loadStats();
     }
@@ -442,18 +528,15 @@
       }
 
       if(deposit.status !== "pending"){
-        alert("هذا الطلب تمت معالجته مسبقاً");
+        alert("تمت معالجة هذا الطلب مسبقًا");
         return;
       }
 
-      const { data: wallet } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if(!wallet){
-        alert("المحفظة غير موجودة");
+      let wallet;
+      try{
+        wallet = await getOrCreateWallet(userId);
+      }catch(e){
+        alert("فشل تحميل محفظة المستخدم: " + e.message);
         return;
       }
 
@@ -536,7 +619,7 @@
       }
 
       box.innerHTML = "";
-      for (const item of data) {
+      for(const item of data){
         const { data: profile } = await supabaseClient
           .from("profiles")
           .select("email, full_name, uid")
@@ -544,7 +627,7 @@
           .single();
 
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "list-item";
         div.innerHTML = `
           <div><strong>${profile?.full_name || "بدون اسم"}</strong></div>
           <div>UID: ${profile?.uid || "---"}</div>
@@ -577,18 +660,15 @@
       }
 
       if(request.status !== "pending"){
-        alert("هذا الطلب تمت معالجته مسبقاً");
+        alert("تمت معالجة هذا الطلب مسبقًا");
         return;
       }
 
-      const { data: wallet } = await supabaseClient
-        .from("wallets")
-        .select("*")
-        .eq("user_id", userId)
-        .single();
-
-      if(!wallet){
-        alert("المحفظة غير موجودة");
+      let wallet;
+      try{
+        wallet = await getOrCreateWallet(userId);
+      }catch(e){
+        alert("فشل تحميل محفظة المستخدم: " + e.message);
         return;
       }
 
@@ -664,7 +744,7 @@
       }
 
       box.innerHTML = "";
-      for (const item of data) {
+      for(const item of data){
         const { data: profile } = await supabaseClient
           .from("profiles")
           .select("email, full_name, uid")
@@ -672,7 +752,7 @@
           .single();
 
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "list-item";
         div.innerHTML = `
           <div><strong>${profile?.full_name || "بدون اسم"}</strong></div>
           <div>UID: ${profile?.uid || "---"}</div>
@@ -706,7 +786,7 @@
       box.innerHTML = "";
       data.forEach(item => {
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "list-item";
         div.innerHTML = `
           <div><strong>${item.full_name}</strong></div>
           <div>UID: ${item.uid_number}</div>
@@ -777,7 +857,7 @@
       box.innerHTML = "";
       data.forEach(item => {
         const div = document.createElement("div");
-        div.className = "item";
+        div.className = "list-item";
         div.innerHTML = `
           <div><strong>${item.subject}</strong></div>
           <div style="margin-top:6px;">${item.message}</div>
