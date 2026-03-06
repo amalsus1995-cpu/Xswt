@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - التحقق من الهوية</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 40px}
+    .title{font-size:24px;font-weight:bold;margin-bottom:14px}
+    .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .field{margin-bottom:12px}
+    label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
+    input,select{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
+    .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:8px}
+    .msg{margin-top:12px;padding:12px;border-radius:12px;font-size:14px;display:none}
+    .msg.ok{display:block;background:#eaf8ef;color:#166534}
+    .msg.err{display:block;background:#fdecec;color:#b42318}
+    .muted{color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">التحقق من الهوية</div>
+
+    <div class="card">
+      <div class="field">
+        <label>الاسم الكامل</label>
+        <input id="full_name" type="text" placeholder="الاسم الكامل">
+      </div>
+
+      <div class="field">
+        <label>الدولة</label>
+        <input id="country" type="text" placeholder="الدولة">
+      </div>
+
+      <div class="field">
+        <label>رقم الهوية</label>
+        <input id="id_number" type="text" placeholder="رقم الهوية">
+      </div>
+
+      <div class="field">
+        <label>صورة الهوية</label>
+        <input id="id_image" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>صورة سيلفي</label>
+        <input id="selfie_image" type="file" accept="image/*">
+      </div>
+
+      <button class="btn" id="kycBtn" onclick="submitKyc()">إرسال التحقق</button>
+      <div id="message" class="msg"></div>
+    </div>
+
+    <div class="card">
+      <div class="muted">بعد الإرسال سيتم حفظ الملفات داخل المنصة ومراجعتها من قبل الأدمن.</div>
+    </div>
+  </div>
+
+  <script>
+    function showMessage(text, type){
+      const box = document.getElementById("message");
+      box.className = "msg " + type;
+      box.textContent = text;
+    }
+
+    async function uploadKycFile(file, folder){
+      const user = await getCurrentUser();
+      if(!user || !file) return null;
+
+      const fileName = `${user.id}/${folder}_${Date.now()}_${file.name}`;
+      const { error } = await supabaseClient.storage
+        .from("kyc-documents")
+        .upload(fileName, file, { upsert: true });
+
+      if(error) throw error;
+
+      return fileName;
+    }
+
+    async function submitKyc(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      const profile = await getMyProfile();
+      const btn = document.getElementById("kycBtn");
+
+      const full_name = document.getElementById("full_name").value.trim();
+      const country = document.getElementById("country").value.trim();
+      const id_number = document.getElementById("id_number").value.trim();
+      const idImage = document.getElementById("id_image").files[0];
+      const selfieImage = document.getElementById("selfie_image").files[0];
+
+      if(!full_name || !country || !id_number || !idImage || !selfieImage){
+        showMessage("يرجى تعبئة جميع الحقول ورفع الصورتين", "err");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "جاري الإرسال...";
+
+      try{
+        const idPath = await uploadKycFile(idImage, "id");
+        const selfiePath = await uploadKycFile(selfieImage, "selfie");
+
+        const { error } = await supabaseClient.from("kyc_requests").insert({
+          user_id: user.id,
+          uid_number: profile?.uid || 0,
+          full_name,
+          country,
+          id_number,
+          id_image_url: idPath,
+          selfie_image_url: selfiePath,
+          status: "pending"
+        });
+
+        if(error) throw error;
+
+        await supabaseClient
+          .from("profiles")
+          .update({ kyc_status: "pending" })
+          .eq("id", user.id);
+
+        showMessage("تم إرسال طلب التحقق بنجاح", "ok");
+        btn.disabled = false;
+        btn.textContent = "إرسال التحقق";
+      }catch(err){
+        showMessage(err.message || "حدث خطأ أثناء رفع الملفات", "err");
+        btn.disabled = false;
+        btn.textContent = "إرسال التحقق";
+      }
+    }
+
+    ensureLoggedIn();
+  </script>
+</body>
+</html>
