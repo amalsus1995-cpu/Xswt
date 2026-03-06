@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - أسعار السوق</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 90px;background:linear-gradient(rgba(255,255,255,.92),rgba(255,255,255,.92)), url('a_pair_of_digital_promotional_images_for_x.swt_are.png') center/cover no-repeat;background-attachment:fixed}
+    .title{font-size:24px;font-weight:bold;margin-bottom:14px}
+    .tabs{display:flex;gap:8px;overflow:auto;margin-bottom:14px}
+    .tab{padding:10px 14px;background:#fff;border-radius:14px;border:1px solid #e5e7eb;white-space:nowrap;font-size:13px}
+    .tab.active{font-weight:bold;background:linear-gradient(135deg,#eef2f5,#fff)}
+    .card{background:rgba(255,255,255,.95);border:1px solid #e6e6e6;border-radius:22px;padding:14px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .row{display:flex;align-items:center;justify-content:space-between;padding:14px 4px;border-bottom:1px solid #f0f0f0}
+    .row:last-child{border-bottom:none}
+    .pair{font-weight:bold}
+    .sub{font-size:12px;color:#666;margin-top:4px}
+    .price{font-weight:bold;font-size:18px;text-align:left}
+    .up{color:#169c46}
+    .down{color:#c0392b}
+    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px, calc(100% - 20px));background:rgba(255,255,255,.94);border:1px solid #e8e8e8;border-radius:24px;display:flex;justify-content:space-around;padding:12px 8px;box-shadow:0 16px 35px rgba(0,0,0,.12)}
+    .nav-item{text-align:center;font-size:12px;color:#666;text-decoration:none;flex:1}
+    .nav-item.active{color:#111;font-weight:bold}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">أسعار السوق</div>
+
+    <div class="tabs">
+      <div class="tab active">المفضلة</div>
+      <div class="tab">المنصة الفورية</div>
+      <div class="tab">الخيارات</div>
+      <div class="tab">الرافعة المالية</div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <div class="pair">BTC / USDT</div>
+          <div class="sub">Bitcoin</div>
+        </div>
+        <div class="price">
+          <div>70,955.54</div>
+          <div class="down">-0.96%</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="pair">ETH / USDT</div>
+          <div class="sub">Ethereum</div>
+        </div>
+        <div class="price">
+          <div>2,075.26</div>
+          <div class="down">-0.56%</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="pair">ADA / USDT</div>
+          <div class="sub">Cardano</div>
+        </div>
+        <div class="price">
+          <div>0.5874</div>
+          <div class="up">+1.24%</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="pair">LTC / USDT</div>
+          <div class="sub">Litecoin</div>
+        </div>
+        <div class="price">
+          <div>84.63</div>
+          <div class="down">-0.22%</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="pair">TRX / USDT</div>
+          <div class="sub">Tron</div>
+        </div>
+        <div class="price">
+          <div>0.134</div>
+          <div class="up">+1.14%</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <div class="pair">BNB / USDT</div>
+          <div class="sub">Binance Coin</div>
+        </div>
+        <div class="price">
+          <div>647.12</div>
+          <div class="down">-0.77%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">الرئيسية</a>
+    <a href="market.html" class="nav-item active">السوق</a>
+    <a href="sync.html" class="nav-item">الكود</a>
+    <a href="assets.html" class="nav-item">الأصول</a>
+    <a href="profile.html" class="nav-item">حسابي</a>
+  </div>
+
+  <script>
+    ensureLoggedIn();
+  </script>
+</body>
+</html>
