@@ -1,440 +1,234 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>x.swt - الرئيسية</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>x.swt - الرئيسية</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script defer src="supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="supabase.js"></script>
 
-  <style>
-    *{box-sizing:border-box}
+<style>
+*{box-sizing:border-box}
 
-    body{
-      margin:0;
-      font-family:Tahoma,Arial,sans-serif;
-      background:linear-gradient(180deg,#f8f9fb,#edf1f5);
-      color:#222;
-    }
+body{
+margin:0;
+font-family:Tahoma,Arial,sans-serif;
+background:linear-gradient(180deg,#f8f9fb,#edf1f5);
+color:#222;
+}
 
-    .app{
-      max-width:430px;
-      margin:0 auto;
-      min-height:100vh;
-      padding:14px 14px 95px;
-      background:
-        linear-gradient(rgba(255,255,255,.90),rgba(255,255,255,.90)),
-        url('a_pair_of_digital_promotional_images_for_x.swt_are.png') center top/cover no-repeat;
-      background-attachment:fixed;
-    }
+.app{
+max-width:430px;
+margin:0 auto;
+min-height:100vh;
+padding:14px 14px 95px;
+background:
+linear-gradient(rgba(255,255,255,.90),rgba(255,255,255,.90)),
+url('a_pair_of_digital_promotional_images_for_x.swt_are.png') center top/cover no-repeat;
+background-attachment:fixed;
+}
 
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:14px;
-    }
+.top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:14px;
+}
 
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
+}
 
-    .brand img{
-      width:52px;
-      height:52px;
-      border-radius:16px;
-      object-fit:cover;
-      background:#fff;
-      box-shadow:0 8px 20px rgba(0,0,0,.12);
-    }
+.brand img{
+width:52px;
+height:52px;
+border-radius:16px;
+object-fit:cover;
+background:#fff;
+box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
 
-    .brand h1{
-      margin:0;
-      font-size:22px;
-      line-height:1.2;
-    }
+.icon-btn{
+border:none;
+background:#fff;
+width:44px;
+height:44px;
+border-radius:14px;
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+cursor:pointer;
+font-size:18px;
+}
 
-    .brand p{
-      margin:3px 0 0;
-      color:#666;
-      font-size:13px;
-    }
+.card{
+background:rgba(255,255,255,.95);
+border:1px solid #e6e6e6;
+border-radius:22px;
+padding:16px;
+box-shadow:0 12px 30px rgba(0,0,0,.08);
+margin-bottom:14px;
+}
 
-    .icon-btn{
-      border:none;
-      background:#fff;
-      width:44px;
-      height:44px;
-      border-radius:14px;
-      box-shadow:0 8px 20px rgba(0,0,0,.08);
-      cursor:pointer;
-      font-size:18px;
-    }
+.balance{
+font-size:34px;
+font-weight:bold;
+margin:10px 0 6px;
+}
 
-    .card{
-      background:rgba(255,255,255,.95);
-      border:1px solid #e6e6e6;
-      border-radius:22px;
-      padding:16px;
-      box-shadow:0 12px 30px rgba(0,0,0,.08);
-      margin-bottom:14px;
-      backdrop-filter:blur(8px);
-    }
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:14px;
+}
 
-    .hero{
-      background:linear-gradient(135deg,#ffffff,#eef2f7);
-    }
+.mini{
+background:#fff;
+border-radius:18px;
+padding:14px;
+box-shadow:0 8px 20px rgba(0,0,0,.06);
+}
 
-    .muted{
-      color:#666;
-      font-size:13px;
-    }
+.section-title{
+margin:10px 2px 12px;
+}
 
-    .balance{
-      font-size:34px;
-      font-weight:bold;
-      margin:10px 0 6px;
-    }
+.action-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
 
-    .status-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:8px;
-    }
+.action-btn{
+border:none;
+border-radius:18px;
+padding:16px 12px;
+font-size:15px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(135deg,#ffffff,#eef2f5);
+box-shadow:0 8px 20px rgba(0,0,0,.06);
+}
 
-    .pill{
-      display:inline-block;
-      padding:7px 12px;
-      border-radius:999px;
-      font-size:12px;
-      background:#f8fafc;
-      border:1px solid #e5e7eb;
-    }
+.admin-btn{
+background:#111;
+color:#fff;
+}
 
-    .pill.ok{
-      color:#166534;
-      background:#ecfdf5;
-      border-color:#bbf7d0;
-    }
+.bottom-nav{
+position:fixed;
+left:50%;
+transform:translateX(-50%);
+bottom:10px;
+width:min(430px, calc(100% - 20px));
+background:rgba(255,255,255,.96);
+border-radius:24px;
+display:flex;
+justify-content:space-around;
+padding:12px 8px;
+box-shadow:0 16px 35px rgba(0,0,0,.12);
+}
 
-    .pill.warn{
-      color:#92400e;
-      background:#fff7ed;
-      border-color:#fed7aa;
-    }
+.nav-item{
+text-align:center;
+font-size:12px;
+color:#666;
+text-decoration:none;
+flex:1;
+}
 
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:14px;
-    }
-
-    .mini{
-      background:#fff;
-      border-radius:18px;
-      padding:14px;
-      box-shadow:0 8px 20px rgba(0,0,0,.06);
-      border:1px solid #f0f0f0;
-    }
-
-    .mini h3{
-      margin:0 0 8px;
-      font-size:14px;
-      color:#666;
-      font-weight:bold;
-    }
-
-    .mini .num{
-      font-size:24px;
-      font-weight:bold;
-      line-height:1.2;
-    }
-
-    .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin:10px 2px 12px;
-    }
-
-    .section-title h2{
-      margin:0;
-      font-size:18px;
-    }
-
-    .action-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .action-btn{
-      border:none;
-      border-radius:18px;
-      padding:16px 12px;
-      font-size:15px;
-      font-weight:bold;
-      cursor:pointer;
-      background:linear-gradient(135deg,#ffffff,#eef2f5);
-      box-shadow:0 8px 20px rgba(0,0,0,.06);
-      border:1px solid #f0f0f0;
-    }
-
-    .coins{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .coin{
-      background:rgba(255,255,255,.96);
-      border-radius:18px;
-      padding:14px;
-      box-shadow:0 8px 20px rgba(0,0,0,.06);
-      border:1px solid #f0f0f0;
-    }
-
-    .coin .pair{
-      font-weight:bold;
-      margin-bottom:10px;
-      font-size:14px;
-    }
-
-    .coin .price{
-      font-size:22px;
-      font-weight:bold;
-      line-height:1.2;
-    }
-
-    .coin .change{
-      margin-top:6px;
-      font-size:13px;
-      font-weight:bold;
-    }
-
-    .coin .change.up{color:#169c46}
-    .coin .change.down{color:#c0392b}
-
-    .feed-item{
-      padding:12px 0;
-      border-bottom:1px solid #efefef;
-      font-size:14px;
-      color:#333;
-      line-height:1.7;
-    }
-
-    .feed-item:last-child{
-      border-bottom:none;
-      padding-bottom:0;
-    }
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:10px;
-      width:min(430px, calc(100% - 20px));
-      background:rgba(255,255,255,.96);
-      border:1px solid #e8e8e8;
-      border-radius:24px;
-      display:flex;
-      justify-content:space-around;
-      padding:12px 8px;
-      box-shadow:0 16px 35px rgba(0,0,0,.12);
-      backdrop-filter:blur(10px);
-      z-index:50;
-    }
-
-    .nav-item{
-      text-align:center;
-      font-size:12px;
-      color:#666;
-      text-decoration:none;
-      flex:1;
-    }
-
-    .nav-item.active{
-      color:#111;
-      font-weight:bold;
-    }
-
-    .welcome{
-      margin-top:8px;
-      font-size:14px;
-      color:#444;
-    }
-  </style>
+.nav-item.active{
+color:#111;
+font-weight:bold;
+}
+</style>
 </head>
+
 <body>
-  <div class="app">
 
-    <div class="top">
-      <div class="brand">
-        <img src="a_logo_for_x.swt_is_displayed_in_the_digital_ima.png" alt="x.swt logo">
-        <div>
-          <h1>x.swt</h1>
-          <p>تداول مع منصتنا لتكسب</p>
-        </div>
-      </div>
-      <button class="icon-btn" onclick="logoutUser()">خروج</button>
-    </div>
+<div class="app">
 
-    <div class="card hero">
-      <div class="muted">إجمالي النقاط</div>
-      <div class="balance" id="balanceText">0 نقطة</div>
+<div class="top">
+<div class="brand">
+<img src="logo.png">
+<div>
+<h1>x.swt</h1>
+<p>تداول مع منصتنا لتكسب</p>
+</div>
+</div>
 
-      <div class="status-row">
-        <div class="muted" id="uidText">UID: ----</div>
-        <div id="activeText" class="pill warn">الحساب: غير مفعل</div>
-      </div>
+<button class="icon-btn" onclick="logoutUser()">خروج</button>
+</div>
 
-      <div class="welcome" id="welcomeText">مرحباً بك</div>
+<div class="card">
+<div class="balance" id="balanceText">0 نقطة</div>
+<div id="uidText">UID: ----</div>
+</div>
 
-      <div class="grid">
-        <div class="mini">
-          <h3>أرباحي</h3>
-          <div class="num" id="earnedText">0</div>
-        </div>
+<div class="section-title">
+<h2>العمليات السريعة</h2>
+</div>
 
-        <div class="mini">
-          <h3>أرباح الفريق</h3>
-          <div class="num" id="teamText">0</div>
-        </div>
+<div class="action-grid">
 
-        <div class="mini">
-          <h3>أرباح الدعوات</h3>
-          <div class="num" id="referralText">0</div>
-        </div>
+<button class="action-btn" onclick="location.href='assets.html'">الأصول</button>
+<button class="action-btn" onclick="location.href='profile.html'">ملفي الشخصي</button>
+<button class="action-btn" onclick="location.href='market.html'">أسعار السوق</button>
+<button class="action-btn" onclick="location.href='sync.html'">إدخال الكود</button>
+<button class="action-btn" onclick="location.href='team.html'">الفريق</button>
+<button class="action-btn" onclick="location.href='support.html'">الدعم</button>
 
-        <div class="mini">
-          <h3>عدد الدعوات</h3>
-          <div class="num" id="refCountText">0</div>
-        </div>
-      </div>
-    </div>
+<!-- زر الادمن -->
+<button class="action-btn admin-btn" id="adminBtn" style="display:none"
+onclick="location.href='admin.html'">
+لوحة الأدمن
+</button>
 
-    <div class="section-title">
-      <h2>العمليات السريعة</h2>
-    </div>
+</div>
 
-    <div class="action-grid">
-      <button class="action-btn" onclick="location.href='assets.html'">الأصول</button>
-      <button class="action-btn" onclick="location.href='profile.html'">ملفي الشخصي</button>
-      <button class="action-btn" onclick="location.href='market.html'">أسعار السوق</button>
-      <button class="action-btn" onclick="location.href='sync.html'">إدخال الكود</button>
-      <button class="action-btn" onclick="location.href='team.html'">الفريق والدعوات</button>
-      <button class="action-btn" onclick="location.href='support.html'">الدعم</button>
-    </div>
+</div>
 
-    <div class="section-title" style="margin-top:18px;">
-      <h2>العملات الرئيسية</h2>
-    </div>
+<div class="bottom-nav">
+<a href="index.html" class="nav-item active">الرئيسية</a>
+<a href="market.html" class="nav-item">السوق</a>
+<a href="sync.html" class="nav-item">الكود</a>
+<a href="assets.html" class="nav-item">الأصول</a>
+<a href="team.html" class="nav-item">الفريق</a>
+</div>
 
-    <div class="coins">
-      <div class="coin">
-        <div class="pair">BTC / USDT</div>
-        <div class="price">$70,955</div>
-        <div class="change down">-0.96%</div>
-      </div>
+<script>
 
-      <div class="coin">
-        <div class="pair">ETH / USDT</div>
-        <div class="price">$2,075</div>
-        <div class="change down">-0.56%</div>
-      </div>
+async function loadHome(){
 
-      <div class="coin">
-        <div class="pair">TRX / USDT</div>
-        <div class="price">$0.13</div>
-        <div class="change up">+1.14%</div>
-      </div>
+const user = await ensureLoggedIn();
+if(!user) return;
 
-      <div class="coin">
-        <div class="pair">BNB / USDT</div>
-        <div class="price">$647</div>
-        <div class="change down">-0.77%</div>
-      </div>
-    </div>
+const profile = await getMyProfile();
+const wallet = await getMyWallet();
 
-    <div class="section-title" style="margin-top:18px;">
-      <h2>الإشعارات</h2>
-    </div>
+if(profile){
 
-    <div class="card" id="feedBox">
-      <div class="feed-item">جاري تحميل الإشعارات...</div>
-    </div>
+document.getElementById("uidText").textContent =
+"UID: " + (profile.uid || "----");
 
-  </div>
+if(profile.email === "am.alsus1995@gmail.com"){
+document.getElementById("adminBtn").style.display="block";
+}
 
-  <div class="bottom-nav">
-    <a href="index.html" class="nav-item active">الرئيسية</a>
-    <a href="market.html" class="nav-item">السوق</a>
-    <a href="sync.html" class="nav-item">الكود</a>
-    <a href="assets.html" class="nav-item">الأصول</a>
-    <a href="team.html" class="nav-item">الفريق</a>
-  </div>
+}
 
-  <script>
-    async function loadHome() {
-      const user = await ensureLoggedIn();
-      if (!user) return;
+if(wallet){
+document.getElementById("balanceText").textContent =
+money(wallet.balance_points) + " دولار";
+}
 
-      const profile = await getMyProfile();
-      const wallet = await getMyWallet();
+}
 
-      if (profile) {
-        document.getElementById("uidText").textContent = "UID: " + (profile.uid || "----");
-        document.getElementById("refCountText").textContent = money(profile.referral_count || 0);
-        document.getElementById("welcomeText").textContent = "مرحباً " + (profile.full_name || "بك");
+loadHome();
 
-        const activeBox = document.getElementById("activeText");
-        if (profile.activation_status === "active") {
-          activeBox.textContent = "الحساب: مفعل";
-          activeBox.className = "pill ok";
-        } else {
-          activeBox.textContent = "الحساب: غير مفعل";
-          activeBox.className = "pill warn";
-        }
-      }
+</script>
 
-      if (wallet) {
-        document.getElementById("balanceText").textContent = money(wallet.balance_points) + " نقطة";
-        document.getElementById("earnedText").textContent = money(wallet.earned_points);
-        document.getElementById("teamText").textContent = money(wallet.team_profit_points);
-        document.getElementById("referralText").textContent = money(wallet.referral_points);
-      }
-
-      const { data: feed } = await supabaseClient
-        .from("activity_feed")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(8);
-
-      const box = document.getElementById("feedBox");
-
-      if (!feed || !feed.length) {
-        box.innerHTML = '<div class="feed-item">لا توجد إشعارات حالياً</div>';
-        return;
-      }
-
-      box.innerHTML = "";
-      feed.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "feed-item";
-        div.textContent = item.display_text || "إشعار جديد";
-        box.appendChild(div);
-      });
-    }
-
-    loadHome();
-  </script>
 </body>
 </html>
