@@ -13,12 +13,18 @@
     .title{font-size:24px;font-weight:bold;margin-bottom:14px}
     .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
     .muted{color:#666;font-size:13px}
-    .wallet-box{padding:14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;text-align:center;word-break:break-all;font-size:14px}
+    .wallet-box{padding:14px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;text-align:center;word-break:break-all;font-size:14px;margin-top:10px}
     .field{margin-top:12px}
-    input,select{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
+    input{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
     .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:12px}
+    .btn:disabled{opacity:.6}
     .row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
     .row:last-child{border-bottom:none}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f8fafc;font-size:12px}
+    .ok{color:#166534}
+    .pending{color:#92400e}
+    .rejected{color:#b91c1c}
+    .note{background:#f8fafc;border-radius:14px;padding:12px;margin-top:10px;font-size:13px;color:#475569;line-height:1.8}
   </style>
 </head>
 <body>
@@ -28,16 +34,16 @@
     <div class="card">
       <div class="muted">شبكة الإيداع</div>
       <div style="font-weight:bold;font-size:18px;margin-top:6px;">USDT - TRC20</div>
-    </div>
-
-    <div class="card">
-      <div class="muted">عنوان المحفظة</div>
       <div class="wallet-box" id="walletAddress">TXYZ123456789EXAMPLETRC20ADDRESS</div>
       <button class="btn" onclick="copyWallet()">نسخ العنوان</button>
+      <div class="note">
+        الحد الأدنى للإيداع: <strong>500 USDT</strong><br>
+        بعد إرسال الطلب، يقوم الأدمن بمراجعته وقبوله من لوحة التحكم.
+      </div>
     </div>
 
     <div class="card">
-      <div class="muted">إرسال طلب إيداع يدوي</div>
+      <div class="muted">إرسال طلب إيداع</div>
 
       <div class="field">
         <input id="amount" type="number" placeholder="قيمة الإيداع بالـ USDT">
@@ -47,7 +53,7 @@
         <input id="txhash" type="text" placeholder="TX Hash (اختياري)">
       </div>
 
-      <button class="btn" onclick="submitDeposit()">إرسال الطلب</button>
+      <button id="depositBtn" class="btn" onclick="submitDeposit()">إرسال الطلب</button>
     </div>
 
     <div class="card">
@@ -63,10 +69,18 @@
       alert("تم نسخ عنوان المحفظة");
     }
 
+    function statusClass(status){
+      if(status === "confirmed") return "ok";
+      if(status === "pending") return "pending";
+      if(status === "rejected") return "rejected";
+      return "";
+    }
+
     async function submitDeposit(){
       const user = await ensureLoggedIn();
       if(!user) return;
 
+      const btn = document.getElementById("depositBtn");
       const amount = Number(document.getElementById("amount").value || 0);
       const txhash = document.getElementById("txhash").value.trim();
 
@@ -74,6 +88,9 @@
         alert("الحد الأدنى 500 USDT");
         return;
       }
+
+      btn.disabled = true;
+      btn.textContent = "جاري الإرسال...";
 
       const { error } = await supabaseClient.from("deposits").insert({
         user_id: user.id,
@@ -83,12 +100,15 @@
         status: "pending"
       });
 
+      btn.disabled = false;
+      btn.textContent = "إرسال الطلب";
+
       if(error){
         alert(error.message);
         return;
       }
 
-      alert("تم إرسال طلب الإيداع");
+      alert("تم إرسال طلب الإيداع بنجاح");
       document.getElementById("amount").value = "";
       document.getElementById("txhash").value = "";
       loadDeposits();
@@ -115,7 +135,13 @@
       data.forEach(item => {
         const div = document.createElement("div");
         div.className = "row";
-        div.innerHTML = `<span>${item.amount_usdt} USDT</span><strong>${item.status}</strong>`;
+        div.innerHTML = `
+          <div>
+            <div><strong>${item.amount_usdt} USDT</strong></div>
+            <div style="font-size:12px;color:#666;margin-top:4px;">${new Date(item.created_at).toLocaleString()}</div>
+          </div>
+          <div class="pill ${statusClass(item.status)}">${item.status}</div>
+        `;
         box.appendChild(div);
       });
     }
