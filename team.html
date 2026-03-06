@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - الدعوات والفريق</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 90px}
+    .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .title{font-size:24px;font-weight:bold;margin-bottom:10px}
+    .muted{color:#666;font-size:13px}
+    .code-box{padding:14px;border:1px dashed #cbd5e1;border-radius:14px;background:#f8fafc;text-align:center;font-weight:bold;font-size:20px;margin-top:10px}
+    .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mini{background:#fff;border:1px solid #e6e6e6;border-radius:18px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+    .mini .num{font-size:24px;font-weight:bold;margin-top:8px}
+    .person{padding:12px 0;border-bottom:1px solid #efefef}
+    .person:last-child{border-bottom:none}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#f8fafc;font-size:12px;margin-top:8px}
+    .open{color:#166534}
+    .closed{color:#92400e}
+    .bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(430px, calc(100% - 20px));background:rgba(255,255,255,.94);border:1px solid #e8e8e8;border-radius:24px;display:flex;justify-content:space-around;padding:12px 8px;box-shadow:0 16px 35px rgba(0,0,0,.12)}
+    .nav-item{text-align:center;font-size:12px;color:#666;text-decoration:none;flex:1}
+    .nav-item.active{color:#111;font-weight:bold}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="title">الدعوات والفريق</div>
+      <div class="muted">شارك رابط الدعوة لتحصل على عمولة 15%، والمدعو يحصل على 7%</div>
+      <div class="code-box" id="refCode">------</div>
+      <button class="btn" onclick="copyReferral()">نسخ رابط الدعوة</button>
+      <div id="teamStatus" class="pill closed">أرباح الفريق غير مفتوحة</div>
+    </div>
+
+    <div class="grid">
+      <div class="mini">
+        <div class="muted">عدد الدعوات</div>
+        <div class="num" id="refCount">0</div>
+      </div>
+      <div class="mini">
+        <div class="muted">أرباح الدعوات</div>
+        <div class="num" id="refProfit">0</div>
+      </div>
+      <div class="mini">
+        <div class="muted">أرباح الفريق</div>
+        <div class="num" id="teamProfit">0</div>
+      </div>
+      <div class="mini">
+        <div class="muted">حالة الميزة</div>
+        <div class="num" id="teamOpenText">مقفلة</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <div class="title" style="font-size:20px;">الأشخاص من رابطك</div>
+      <div id="teamList">جاري التحميل...</div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item">الرئيسية</a>
+    <a href="market.html" class="nav-item">السوق</a>
+    <a href="sync.html" class="nav-item">الكود</a>
+    <a href="assets.html" class="nav-item">الأصول</a>
+    <a href="team.html" class="nav-item active">الفريق</a>
+  </div>
+
+  <script>
+    let myProfile = null;
+
+    async function copyReferral(){
+      if(!myProfile?.referral_code){
+        alert("لا يوجد كود دعوة");
+        return;
+      }
+      const link = location.origin + location.pathname.replace("team.html", "register.html") + "?ref=" + myProfile.referral_code;
+      await navigator.clipboard.writeText(link);
+      alert("تم نسخ رابط الدعوة");
+    }
+
+    async function loadTeam(){
+      const user = await ensureLoggedIn();
+      if(!user) return;
+
+      myProfile = await getMyProfile();
+      const wallet = await getMyWallet();
+
+      if(myProfile){
+        document.getElementById("refCode").textContent = myProfile.referral_code || "------";
+        document.getElementById("refCount").textContent = myProfile.referral_count || 0;
+
+        if(myProfile.team_feature_unlocked){
+          document.getElementById("teamStatus").textContent = "أرباح الفريق مفتوحة";
+          document.getElementById("teamStatus").className = "pill open";
+          document.getElementById("teamOpenText").textContent = "مفتوحة";
+        }else{
+          document.getElementById("teamStatus").textContent = "تحتاج 5 أشخاص لفتح أرباح الفريق";
+          document.getElementById("teamStatus").className = "pill closed";
+          document.getElementById("teamOpenText").textContent = "مقفلة";
+        }
+      }
+
+      if(wallet){
+        document.getElementById("refProfit").textContent = money(wallet.referral_points);
+        document.getElementById("teamProfit").textContent = money(wallet.team_profit_points);
+      }
+
+      const { data: refs } = await supabaseClient
+        .from("referrals")
+        .select("referred_id")
+        .eq("referrer_id", user.id);
+
+      const box = document.getElementById("teamList");
+
+      if(!refs || !refs.length){
+        box.innerHTML = "لا يوجد أشخاص من رابطك حالياً";
+        return;
+      }
+
+      box.innerHTML = "";
+
+      for(const item of refs){
+        const { data: person } = await supabaseClient
+          .from("profiles")
+          .select("full_name,email,uid,activation_status")
+          .eq("id", item.referred_id)
+          .single();
+
+        const div = document.createElement("div");
+        div.className = "person";
+        div.innerHTML = `
+          <div><strong>${person?.full_name || 'بدون اسم'}</strong></div>
+          <div style="font-size:13px;color:#666;margin-top:4px;">UID: ${person?.uid || '---'}</div>
+          <div style="font-size:13px;color:#666;margin-top:4px;">${person?.email || ''}</div>
+          <div style="font-size:13px;color:#666;margin-top:4px;">الحساب: ${person?.activation_status === 'active' ? 'مفعل' : 'غير مفعل'}</div>
+        `;
+        box.appendChild(div);
+      }
+    }
+
+    loadTeam();
+  </script>
+</body>
+</html>
