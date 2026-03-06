@@ -38,8 +38,8 @@
     </div>
 
     <div class="action-grid">
-      <button class="btn" onclick="alert('صفحة الإيداع القادمة')">الإيداع</button>
-      <button class="btn" onclick="alert('صفحة السحب القادمة')">سحب العملات</button>
+      <button class="btn" onclick="location.href='deposit.html'">الإيداع</button>
+      <button class="btn" onclick="location.href='withdraw.html'">سحب العملات</button>
     </div>
 
     <div class="card" style="margin-top:14px;">
@@ -72,6 +72,7 @@
       document.getElementById('referralText').textContent = money(wallet.referral_points);
       document.getElementById('teamText').textContent = money(wallet.team_profit_points);
     }
+
     loadAssets();
   </script>
 </body>
