@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>x.swt - لوحة الأدمن</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="supabase.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(180deg,#f7f8fa,#edf1f5);color:#222}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 14px 40px}
+    .card{background:#fff;border:1px solid #e6e6e6;border-radius:22px;padding:16px;box-shadow:0 12px 30px rgba(0,0,0,.08);margin-bottom:14px}
+    .title{font-size:24px;font-weight:bold;margin-bottom:10px}
+    .muted{color:#666;font-size:13px}
+    .field{margin-bottom:12px}
+    input,select{width:100%;padding:14px;border:1px solid #d4d7dd;border-radius:14px;font-size:15px;background:#fff;outline:none}
+    .btn{width:100%;padding:14px;border:none;border-radius:16px;background:linear-gradient(135deg,#dfe3e8,#ffffff);font-weight:bold;font-size:16px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.07);margin-top:8px}
+    .user-item{padding:12px 0;border-bottom:1px solid #efefef}
+    .user-item:last-child{border-bottom:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <div class="title">لوحة الأدمن</div>
+      <div class="muted">إدارة العملاء والنقاط</div>
+      <button class="btn" onclick="logoutUser()">تسجيل الخروج</button>
+    </div>
+
+    <div class="card">
+      <div class="field"><input id="searchEmail" type="text" placeholder="ابحث بإيميل المستخدم"></div>
+      <button class="btn" onclick="findUser()">بحث عن مستخدم</button>
+      <div id="userResult" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="field"><input id="pointsEmail" type="text" placeholder="إيميل المستخدم"></div>
+      <div class="field"><input id="pointsAmount" type="number" placeholder="عدد النقاط"></div>
+      <div class="field">
+        <select id="pointsAction">
+          <option value="add">إضافة نقاط</option>
+          <option value="deduct">خصم نقاط</option>
+        </select>
+      </div>
+      <button class="btn" onclick="adjustPoints()">تنفيذ</button>
+    </div>
+
+    <div class="card">
+      <div class="field"><input id="banEmail" type="text" placeholder="إيميل المستخدم"></div>
+      <div class="field">
+        <select id="banAction">
+          <option value="banned">حظر الحساب</option>
+          <option value="active">فك الحظر</option>
+        </select>
+      </div>
+      <button class="btn" onclick="changeStatus()">حفظ الحالة</button>
+    </div>
+  </div>
+
+  <script>
+    async function ensureAdmin(){
+      const user = await ensureLoggedIn();
+      if(!user) return null;
+
+      const profile = await getMyProfile();
+      if(!profile || profile.role !== 'admin') {
+        window.location.href = 'index.html';
+        return null;
+      }
+      return profile;
+    }
+
+    async function findUser(){
+      await ensureAdmin();
+      const email = document.getElementById('searchEmail').value.trim();
+      const box = document.getElementById('userResult');
+
+      if(!email) return;
+
+      const { data } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if(!data){
+        box.innerHTML = 'المستخدم غير موجود';
+        return;
+      }
+
+      const { data: wallet } = await supabaseClient
+        .from('wallets')
+        .select('*')
+        .eq('user_id', data.id)
+        .single();
+
+      box.innerHTML = `
+        <div class="user-item"><strong>${data.full_name || 'بدون اسم'}</strong></div>
+        <div class="user-item">UID: ${data.uid}</div>
+        <div class="user-item">الحالة: ${data.account_status || 'active'}</div>
+        <div class="user-item">الرصيد: ${wallet?.balance_points || 0} نقطة</div>
+      `;
+    }
+
+    async function getUserIdByEmail(email){
+      const { data } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+      return data?.id || null;
+    }
+
+    async function adjustPoints(){
+      await ensureAdmin();
+
+      const email = document.getElementById('pointsEmail').value.trim();
+      const amount = Number(document.getElementById('pointsAmount').value || 0);
+      const action = document.getElementById('pointsAction').value;
+      const userId = await getUserIdByEmail(email);
+
+      if(!userId || amount <= 0){
+        alert('تحقق من البيانات');
+        return;
+      }
+
+      const { data: wallet } = await supabaseClient
+        .from('wallets')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if(!wallet){
+        alert('المحفظة غير موجودة');
+        return;
+      }
+
+      const newBalance = action === 'add'
+        ? Number(wallet.balance_points || 0) + amount
+        : Math.max(Number(wallet.balance_points || 0) - amount, 0);
+
+      const { error } = await supabaseClient
+        .from('wallets')
+        .update({ balance_points: newBalance })
+        .eq('user_id', userId);
+
+      if(error){
+        alert(error.message);
+        return;
+      }
+
+      alert('تم التنفيذ بنجاح');
+    }
+
+    async function changeStatus(){
+      await ensureAdmin();
+
+      const email = document.getElementById('banEmail').value.trim();
+      const status = document.getElementById('banAction').value;
+
+      if(!email){
+        alert('اكتب الإيميل');
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ account_status: status })
+        .eq('email', email);
+
+      if(error){
+        alert(error.message);
+        return;
+      }
+
+      alert('تم تحديث حالة الحساب');
+    }
+
+    ensureAdmin();
+  </script>
+</body>
+</html>
